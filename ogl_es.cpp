@@ -1,3 +1,5 @@
+//#define USE_EGL
+
 #include <stdio.h>
 #include <math.h>
 #include <memory.h>
@@ -7,12 +9,27 @@
 
 #include <X11/Xlib.h>
 
+#ifdef USE_EGL
+#include <GLES2/gl2.h>
+#include <EGL/egl.h>
+#else
 #include <GL/glew.h>
 #include <GL/glx.h>
+#endif
 
 //
 // Globals
 //
+#ifdef USE_EGL
+
+EGLNativeDisplayType    g_Display;
+EGLNativeWindowType     g_Window;
+EGLDisplay              g_EglDisplay;
+EGLSurface              g_EglSurface;
+EGLContext              g_EglContext;
+
+#else
+
 Display*            g_Display               = NULL;
 Window              g_Window                = 0;
 
@@ -21,6 +38,8 @@ XVisualInfo*        g_Visual                = NULL;
 GLXContext          g_Context               = 0;
 GLXFBConfig*        g_FBConfig              = NULL;      // GLX 1.3
 GLXWindow           g_Drawable              = 0;         // GLX 1.3
+
+#endif // !USE_EGL
 
 //
 // CreateAppWindow
@@ -73,6 +92,56 @@ static void PrintDesc()
 //
 bool CreateOpenGL(unsigned Width, unsigned Height)
 {
+#ifdef USE_EGL
+    g_Display = (EGLNativeDisplayType)XOpenDisplay(NULL);
+    if (!g_Display)
+    {
+        puts("Failed to open display.");
+        return false;
+    }
+
+    g_EglDisplay = eglGetDisplay(g_Display);
+    if (EGL_NO_DISPLAY == g_EglDisplay)
+    {
+        puts("Failed to get EGL display.");
+        return false;
+    }
+
+    EGLint MajorNumber = 0;
+    EGLint MinorNumber = 0;
+
+    // Initialize the display
+    EGLBoolean bSuccess = eglInitialize(g_EglDisplay, &MajorNumber, &MinorNumber);
+    if (!bSuccess)
+    {
+        puts("eglInitialize() failed!\n");
+        return false;
+    }
+
+    printf("EGL version: %d.%d\n", MajorNumber, MinorNumber);
+
+    // Obtain the first configuration with a depth buffer
+    EGLint attrs[] = { EGL_DEPTH_SIZE, 16, EGL_NONE };
+    EGLint NumConfig =0;
+    EGLConfig EglConfig = 0;
+
+    bSuccess = eglChooseConfig(g_EglDisplay, attrs, &EglConfig, 1, &NumConfig);
+    if (!bSuccess)
+    {
+        puts("Failed to find valid EGL config.");
+        return false;
+    }
+
+    // Get the native visual id
+    int NativeVisualID;
+
+    if (!eglGetConfigAttrib(g_EglDisplay, EglConfig, EGL_NATIVE_VISUAL_ID, &NativeVisualID))
+    {
+        puts("Failed to get native visual ID");
+        return false;
+    }
+
+#else
     g_Display = XOpenDisplay(NULL);
     if (!g_Display)
     {
@@ -197,6 +266,7 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
         puts("Failed to make rendering context current.");
         return false;
     }
+#endif // !USE_EGL
 
     PrintDesc();
     return true;
@@ -207,6 +277,14 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
 //
 void DestroyOpenGL()
 {
+#ifdef USE_EGL
+    eglMakeCurrent(EGL_NO_DISPLAY, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
+    eglDestroyContext(g_EglDisplay, g_EglContext);
+    eglDestroySurface(g_EglDisplay, g_EglSurface);
+    eglTerminate(g_EglDisplay);
+
+    XDestroyWindow(g_Display, g_Window);
+#else
     glXDestroyContext(g_Display, g_Context);
     //if (bNewGLX)
         //glXDestroyWindow(g_Display, g_Drawable);
@@ -217,6 +295,7 @@ void DestroyOpenGL()
         XFree(g_Visual);
     else if (g_FBConfig)
         XFree(g_FBConfig);
+#endif // !USE_EGL
 }
 
 //
@@ -224,7 +303,11 @@ void DestroyOpenGL()
 //
 void BeginFrame()
 {
+#ifdef USE_EGL
+    eglMakeCurrent(g_EglDisplay, g_EglSurface, g_EglSurface, g_EglContext);
+#else
     glXMakeCurrent(g_Display, g_Window, g_Context);
+#endif
 }
 
 //
@@ -232,5 +315,9 @@ void BeginFrame()
 //
 void EndFrame()
 {
+#ifdef USE_EGL
+    eglSwapBuffers(g_EglDisplay, g_EglSurface);
+#else
     glXSwapBuffers(g_Display, g_Window);
+#endif
 }
