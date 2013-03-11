@@ -1,0 +1,50 @@
+#define MAX_POINT_LIGHTS 8
+
+uniform vec3       light[MAX_POINT_LIGHTS];
+uniform float      radius[MAX_POINT_LIGHTS];
+uniform vec3       Kd[MAX_POINT_LIGHTS];
+uniform vec3       Ks[MAX_POINT_LIGHTS];
+uniform float      spec_power[MAX_POINT_LIGHTS];
+uniform vec3       view;
+
+varying vec3       oPos;
+varying vec3       oNormal;
+
+vec3 phong(vec3 N, vec3 L, vec3 V,
+           vec3 Ka, float Ia,
+           vec3 Kd, float Id,
+           vec3 Ks, float Is,
+           float e)
+{
+    float NdL = clamp(dot(N, L), 0., 1.);
+    vec3 R = reflect(-L, N);
+    float RdV = clamp(dot(R, V), 0., 1.);
+    vec3 I = (Ka * Ia) + (Kd * NdL * Id) + (Ks * pow(RdV, e) * Is);
+
+    return I;
+}
+
+float attenuation(vec3 light, vec3 pos, float r)
+{
+    float d = length(light - pos);
+    return 1.0 - (d * d) / (r * r);
+}
+
+void main()
+{
+    vec3 N = normalize(oNormal);
+    vec3 V = normalize(view - oPos);
+    vec3 color = vec3(0., 0., 0.);
+    const float mat_spec_power = 64.0;
+                
+    for (int i = 0; i < 6/*MAX_POINT_LIGHTS*/; ++i)
+    {
+        vec3 L = normalize(light[i] - oPos);
+        vec3 C = phong(N, L, V, Kd[i], 0.15, Kd[i], 0.8, Ks[i], 0.4, mat_spec_power);
+        float dist = length(light[i] - oPos);
+        float att = attenuation(light[i], oPos, radius[i]);
+        color += C * att;
+    }
+
+    gl_FragColor = vec4(color, 1.);
+}
