@@ -1,6 +1,5 @@
 CC=g++
-INCLUDES=-I../include
-CFLAGS=-c $(INCLUDES)
+CFLAGS=-c
 OBJS=main.o ogl_es.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
