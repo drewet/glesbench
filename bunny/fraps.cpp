@@ -38,10 +38,8 @@ CFraps::CFraps():
 
     glGenBuffers(1, &m_IB);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6 * FRAPS_MAX_STRING, NULL, GL_DYNAMIC_DRAW);
-#ifdef USE_GLES
-#else
-    GLushort *pIndices = (GLushort *)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
+    GLushort *pData = new GLushort[6 * FRAPS_MAX_STRING];
+    GLushort *pIndices = pData;
     if (pIndices)
     {
         // CCW order
@@ -59,11 +57,12 @@ CFraps::CFraps():
             StartIndex += 4;
         }
 
-        glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6 * FRAPS_MAX_STRING, pData, GL_STATIC_DRAW);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+        delete[] pData;
     }
-#endif // !USE_GLES
 
+    puts("gen texture...");
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -71,14 +70,23 @@ CFraps::CFraps():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // OpenGL ES?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // OpenGL ES?
 #ifdef USE_GLES
-#else
     glTexImage2D(GL_TEXTURE_2D,
         0, // Level
-        GL_RGBA8, // OpenGL ES?
+        GL_RGBA,
         FRAPS_GLYPH_WIDTH * 10,
         FRAPS_GLYPH_HEIGHT,
         0, // Border
-        GL_BGRA, // OpenGL ES?
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        g_FRAPSFont);
+#else
+    glTexImage2D(GL_TEXTURE_2D,
+        0, // Level
+        GL_RGBA8,
+        FRAPS_GLYPH_WIDTH * 10,
+        FRAPS_GLYPH_HEIGHT,
+        0, // Border
+        GL_BGRA,
         GL_UNSIGNED_BYTE,
         g_FRAPSFont);
 #endif
@@ -139,10 +147,9 @@ void CFraps::Draw(unsigned Width, unsigned Height)
     int x = Width - (FRAPS_GLYPH_WIDTH + 2);
     int y = Height - (FRAPS_GLYPH_HEIGHT + 2);
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VB);
-#ifdef USE_GLES
-#else
-    FRAPS_VERTEX *pVertices = (FRAPS_VERTEX *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    FRAPS_VERTEX *pData = new FRAPS_VERTEX[4 * FRAPS_MAX_STRING];
+    FRAPS_VERTEX *pVertices = pData;
+
     if (pVertices)
     {
         const float du = 1.0f / FRAPS_NUM_GLYPHS; // We have 10 digits (0..9) in UV range 0..1
@@ -163,9 +170,10 @@ void CFraps::Draw(unsigned Width, unsigned Height)
             x -= FRAPS_GLYPH_PITCH;
         }
 
-        glUnmapBuffer(GL_ARRAY_BUFFER);
+        glBindBuffer(GL_ARRAY_BUFFER, m_VB);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FRAPS_VERTEX) * 4 * NumGlyphs, pData);
+        delete[] pData;
     }
-#endif // USE_GLES
 
     BeginDraw();
     {
@@ -180,7 +188,6 @@ void CFraps::Draw(unsigned Width, unsigned Height)
 void CFraps::BeginDraw()
 {
     glDisable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE); //???
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
