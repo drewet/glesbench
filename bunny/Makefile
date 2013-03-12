@@ -1,11 +1,14 @@
 CC=g++
+INCLUDES=-I../include
+CFLAGS=-c $(INCLUDES)
 OBJS=main.o ogl_es.o utils.o gccxnamath.o fraps.o shader.o bunny.o
-CFLAGS=-c
+LIBS=-lX11 -lGL -lGLEW
+LDFLAGS=$(LIBS)
 
 all: bunny
 
-bunny: $(OBJS) vsh.h fsh.h
-	$(CC) $(OBJS) -lX11 -lGL -lGLEW -o bunny
+bunny: $(OBJS) vsh.h fsh.h ../ogl_es.h
+	$(CC) $(OBJS) $(LDFLAGS) -o bunny
     
 main.o: ../main.cpp
 	$(CC) $(CFLAGS) ../main.cpp
