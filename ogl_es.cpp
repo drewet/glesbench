@@ -88,11 +88,19 @@ static void PrintDesc()
 }
 
 //
+// PrintEGLError
+//
+static void PrintEGLError()
+{
+}
+
+//
 // CreateOpenGL
 //
 bool CreateOpenGL(unsigned Width, unsigned Height)
 {
 #ifdef USE_EGL
+    puts("XOpenDisplay...");
     g_Display = (EGLNativeDisplayType)XOpenDisplay(NULL);
     if (!g_Display)
     {
@@ -100,6 +108,7 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
         return false;
     }
 
+    puts("eglGetDisplay...");
     g_EglDisplay = eglGetDisplay(g_Display);
     if (EGL_NO_DISPLAY == g_EglDisplay)
     {
@@ -111,6 +120,7 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
     EGLint MinorNumber = 0;
 
     // Initialize the display
+    puts("eglInitialize...");
     EGLBoolean bSuccess = eglInitialize(g_EglDisplay, &MajorNumber, &MinorNumber);
     if (!bSuccess)
     {
@@ -121,11 +131,17 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
     printf("EGL version: %d.%d\n", MajorNumber, MinorNumber);
 
     // Obtain the first configuration with a depth buffer
-    EGLint attrs[] = { EGL_DEPTH_SIZE, 16, EGL_NONE };
+    EGLint Attribs[] =
+    {
+        EGL_DEPTH_SIZE, 16,
+        EGL_NONE
+    };
+
     EGLint NumConfig =0;
     EGLConfig EglConfig = 0;
 
-    bSuccess = eglChooseConfig(g_EglDisplay, attrs, &EglConfig, 1, &NumConfig);
+    puts("eglChooseConfig...");
+    bSuccess = eglChooseConfig(g_EglDisplay, Attribs, &EglConfig, 1, &NumConfig);
     if (!bSuccess)
     {
         puts("Failed to find valid EGL config.");
@@ -135,12 +151,49 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
     // Get the native visual id
     int NativeVisualID;
 
+    puts("eglGetConfigAttrib...");
     if (!eglGetConfigAttrib(g_EglDisplay, EglConfig, EGL_NATIVE_VISUAL_ID, &NativeVisualID))
     {
-        puts("Failed to get native visual ID");
+        puts("Failed to get EGL_NATIVE_VISUAL_ID.");
         return false;
     }
 
+    XVisualInfo Template;
+    XVisualInfo *pVisual = NULL;
+    int NumItems;
+
+    // Construct visual info from id
+    Template.visualid = NativeVisualID;
+    puts("XGetVisualInfo...");
+    pVisual = XGetVisualInfo(g_Display, VisualIDMask, &Template, &NumItems);
+    if (!pVisual)
+        return false;
+
+    g_Window = CreateAppWindow(pVisual, Width, Height);
+
+    puts("eglCreateWindowSurface...");
+    g_EglSurface = eglCreateWindowSurface(g_EglDisplay, EglConfig, g_Window, NULL);
+    if (EGL_NO_SURFACE == g_EglSurface)
+    {
+        puts("Failed to create window surface.");
+        return false;
+    }
+
+    puts("eglCreateContext...");
+    g_EglContext = eglCreateContext(g_EglDisplay, EglConfig, EGL_NO_CONTEXT, NULL);
+    if (EGL_NO_CONTEXT == g_EglContext)
+    {
+        puts("Failed to create EGL context.");
+        return false;
+    }
+
+    printf("eglMakeCurrent(%p, %p, %p, %p)\n", g_EglDisplay, g_EglSurface, g_EglSurface, g_EglContext);
+    bSuccess = eglMakeCurrent(g_EglDisplay, g_EglSurface, g_EglSurface, g_EglContext);
+    if(!bSuccess)
+    {
+        puts("Failed to make rendering context current.");
+        return false;
+    }
 #else
     g_Display = XOpenDisplay(NULL);
     if (!g_Display)
@@ -212,6 +265,13 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
             puts("No conforming FB config exists.");
             return false;
         }
+
+        g_Visual = glXGetVisualFromFBConfig(g_Display, g_FBConfig[0]);
+        if (!g_Visual)
+        {
+            puts("Failed to obtain visual from FB config.");
+            return false;
+        }
     }
     else
     {
@@ -225,14 +285,7 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
 
     if (bNewGLX)
     {
-        XVisualInfo *Visual = glXGetVisualFromFBConfig(g_Display, g_FBConfig[0]);
-        if (!Visual)
-        {
-            puts("Failed to obtain visual from FB config.");
-            return false;
-        }
-
-        g_Window = CreateAppWindow(Visual, Width, Height);
+        g_Window = CreateAppWindow(g_Visual, Width, Height);
 
         g_Drawable = glXCreateWindow(g_Display, g_FBConfig[0], g_Window, NULL);
         if (!g_Drawable)
