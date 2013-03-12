@@ -27,6 +27,7 @@ CFraps::CFraps():
     m_NumFrames(0),
     m_fps(0)
 {
+    puts("CFraps::CFraps");
     ftime(&m_Prev);
     ftime(&m_Curr);
 
@@ -38,6 +39,8 @@ CFraps::CFraps():
     glGenBuffers(1, &m_IB);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6 * FRAPS_MAX_STRING, NULL, GL_DYNAMIC_DRAW);
+#ifdef USE_GLES
+#else
     GLushort *pIndices = (GLushort *)glMapBuffer(GL_ELEMENT_ARRAY_BUFFER, GL_WRITE_ONLY);
     if (pIndices)
     {
@@ -59,6 +62,7 @@ CFraps::CFraps():
         glUnmapBuffer(GL_ELEMENT_ARRAY_BUFFER);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
+#endif // !USE_GLES
 
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
@@ -66,6 +70,8 @@ CFraps::CFraps():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // OpenGL ES?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // OpenGL ES?
+#ifdef USE_GLES
+#else
     glTexImage2D(GL_TEXTURE_2D,
         0, // Level
         GL_RGBA8, // OpenGL ES?
@@ -75,6 +81,7 @@ CFraps::CFraps():
         GL_BGRA, // OpenGL ES?
         GL_UNSIGNED_BYTE,
         g_FRAPSFont);
+#endif
 }
 
 //
@@ -133,6 +140,8 @@ void CFraps::Draw(unsigned Width, unsigned Height)
     int y = Height - (FRAPS_GLYPH_HEIGHT + 2);
 
     glBindBuffer(GL_ARRAY_BUFFER, m_VB);
+#ifdef USE_GLES
+#else
     FRAPS_VERTEX *pVertices = (FRAPS_VERTEX *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
     if (pVertices)
     {
@@ -156,6 +165,7 @@ void CFraps::Draw(unsigned Width, unsigned Height)
 
         glUnmapBuffer(GL_ARRAY_BUFFER);
     }
+#endif // USE_GLES
 
     BeginDraw();
     {

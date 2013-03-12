@@ -1,5 +1,3 @@
-//#define USE_EGL
-
 #include <stdio.h>
 #include <math.h>
 #include <memory.h>
@@ -9,18 +7,12 @@
 
 #include <X11/Xlib.h>
 
-#ifdef USE_EGL
-#include <GLES2/gl2.h>
-#include <EGL/egl.h>
-#else
-#include <GL/glew.h>
-#include <GL/glx.h>
-#endif
+#include "ogl_es.h"
 
 //
 // Globals
 //
-#ifdef USE_EGL
+#ifdef USE_GLES
 
 EGLNativeDisplayType    g_Display;
 EGLNativeWindowType     g_Window;
@@ -39,7 +31,7 @@ GLXContext          g_Context               = 0;
 GLXFBConfig*        g_FBConfig              = NULL;      // GLX 1.3
 GLXWindow           g_Drawable              = 0;         // GLX 1.3
 
-#endif // !USE_EGL
+#endif // !USE_GLES
 
 //
 // CreateAppWindow
@@ -99,7 +91,7 @@ static void PrintEGLError()
 //
 bool CreateOpenGL(unsigned Width, unsigned Height)
 {
-#ifdef USE_EGL
+#ifdef USE_GLES
     puts("XOpenDisplay...");
     g_Display = (EGLNativeDisplayType)XOpenDisplay(NULL);
     if (!g_Display)
@@ -319,7 +311,7 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
         puts("Failed to make rendering context current.");
         return false;
     }
-#endif // !USE_EGL
+#endif // !USE_GLES
 
     PrintDesc();
     return true;
@@ -330,7 +322,7 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
 //
 void DestroyOpenGL()
 {
-#ifdef USE_EGL
+#ifdef USE_GLES
     eglMakeCurrent(EGL_NO_DISPLAY, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     eglDestroyContext(g_EglDisplay, g_EglContext);
     eglDestroySurface(g_EglDisplay, g_EglSurface);
@@ -348,7 +340,7 @@ void DestroyOpenGL()
         XFree(g_Visual);
     else if (g_FBConfig)
         XFree(g_FBConfig);
-#endif // !USE_EGL
+#endif // !USE_GLES
 }
 
 //
@@ -356,7 +348,7 @@ void DestroyOpenGL()
 //
 void BeginFrame()
 {
-#ifdef USE_EGL
+#ifdef USE_GLES
     eglMakeCurrent(g_EglDisplay, g_EglSurface, g_EglSurface, g_EglContext);
 #else
     glXMakeCurrent(g_Display, g_Window, g_Context);
@@ -368,7 +360,7 @@ void BeginFrame()
 //
 void EndFrame()
 {
-#ifdef USE_EGL
+#ifdef USE_GLES
     eglSwapBuffers(g_EglDisplay, g_EglSurface);
 #else
     glXSwapBuffers(g_Display, g_Window);

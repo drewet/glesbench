@@ -3,23 +3,23 @@
 #include <string.h>
 #include <assert.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/glew.h>
+#include "shader.h"
 
 //
 // LoadGLSLShader
 //
 GLuint LoadGLSLShader(GLenum Target, const GLchar *pSource)
 {
+    printf("LoadGLSLShader(%s)\n",
+        (GL_VERTEX_SHADER==Target) ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER");
+
     GLint Length = (GLint)strlen(pSource);
     GLuint Shader;
     GLint CompileStatus;
 
     Shader = glCreateShader(Target);
     glShaderSource(Shader, 1, &pSource, &Length);
-    glCompileShader(Shader);  
+    glCompileShader(Shader);
     glGetShaderiv(Shader, GL_COMPILE_STATUS, &CompileStatus);
     
     if (CompileStatus != GL_TRUE)
@@ -84,6 +84,7 @@ GLuint LoadGLSLShaderFromFile(GLenum Target, const char *pFileName)
 //
 bool LinkGLSLProgram(GLuint Program)
 {
+    printf("LinkGLSLProgram(id=%d)\n", Program);
     GLint LinkStatus = GL_FALSE;
 
     glLinkProgram(Program);

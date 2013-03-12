@@ -2,10 +2,7 @@
 #include <string.h>
 #include <assert.h>
 
-#ifdef _WIN32
-#include <windows.h>
-#endif
-#include <GL/glew.h>
+#include "../ogl_es.h"
 
 #define _USE_MATH_DEFINES
 #ifdef _WIN32
@@ -117,6 +114,8 @@ XMMATRIX                g_Proj = XMMatrixIdentity();
 //
 void LoadBunnyMesh()
 {
+    puts("Load bunny mesh");
+
     glGenBuffers(1, &g_BunnyVB);
     glBindBuffer(GL_ARRAY_BUFFER, g_BunnyVB);
     glBufferData(GL_ARRAY_BUFFER, sizeof(bunny::g_Vertices), bunny::g_Vertices, GL_STATIC_DRAW);
@@ -133,6 +132,8 @@ void LoadBunnyMesh()
 //
 void LoadKnotMesh()
 {
+    puts("Load knot mesh");
+
     glGenBuffers(1, &g_KnotVB);
     glBindBuffer(GL_ARRAY_BUFFER, g_KnotVB);
     glBufferData(GL_ARRAY_BUFFER, sizeof(knot::g_Vertices), knot::g_Vertices, GL_STATIC_DRAW);
@@ -149,6 +150,8 @@ void LoadKnotMesh()
 //
 void LoadSphereMesh()
 {
+    puts("Load sphere mesh");
+
     glGenBuffers(1, &g_SphereVB);
     glBindBuffer(GL_ARRAY_BUFFER, g_SphereVB);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sphere::g_Vertices), sphere::g_Vertices, GL_STATIC_DRAW);
@@ -165,6 +168,7 @@ void LoadSphereMesh()
 //
 bool LoadShaders()
 {
+    puts("Load shaders");
     GLuint vsh, fsh;
     bool bLinked;
 
@@ -264,7 +268,11 @@ bool LoadShaders()
 //
 bool Initialize()
 {
+    puts("Initialize...");
+
+#if !defined(USE_GLES)
     glewInit();
+#endif
 
     LoadBunnyMesh();
     LoadKnotMesh();
