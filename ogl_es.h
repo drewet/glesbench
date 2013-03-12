@@ -1,4 +1,4 @@
-#define USE_GLES
+//#define USE_GLES
 
 #ifdef _WIN32
 #include <windows.h>

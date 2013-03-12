@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <sys/timeb.h>
 
-#include "../ogl_es.h"
+#include "ogl_es.h"
 
 //
 // glHandleErrors
