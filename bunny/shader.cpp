@@ -14,6 +14,13 @@ GLuint LoadGLSLShader(GLenum Target, const GLchar *pSource)
         (GL_VERTEX_SHADER==Target) ? "GL_VERTEX_SHADER" : "GL_FRAGMENT_SHADER");
 
     GLint Length = (GLint)strlen(pSource);
+
+    if (0 == Length)
+    {
+        puts("Shader source length is zero");
+        return 0;
+    }
+
     GLuint Shader;
     GLint CompileStatus;
 
@@ -37,6 +44,11 @@ GLuint LoadGLSLShader(GLenum Target, const GLchar *pSource)
                 puts(pInfoLog);
                 delete[] pInfoLog;
             }
+        }
+        else
+        {
+            puts(pSource);
+            puts("(Compilation log is empty)");
         }
 
         glDeleteShader(Shader);
@@ -72,8 +84,16 @@ GLuint LoadGLSLShaderFromFile(GLenum Target, const char *pFileName)
 
             return Shader;
         }
+        else
+        {
+            printf("Length of the file \"%s\" is zero", pFileName);
+        }
 
         fclose(pFile);
+    }
+    else
+    {
+        printf("Failed to open file \"%s\"\n", pFileName);
     }
 
     return 0;
@@ -104,6 +124,10 @@ bool LinkGLSLProgram(GLuint Program)
                 puts(pInfoLog);
                 delete[] pInfoLog;
             }
+        }
+        else
+        {
+            puts("Link log is empty");
         }
 
         return false;
