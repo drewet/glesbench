@@ -1,10 +1,9 @@
 // Define this for SDL build
-#define USE_GLES
-
 #ifdef _WIN32
 #include <windows.h>
 #endif
-#ifdef USE_GLES
+
+#ifdef USE_SDL
 #include <GLES2/gl2.h>
 typedef char GLchar; // Some GLES headers do not typedef this
 #else
