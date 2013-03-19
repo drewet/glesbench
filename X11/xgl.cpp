@@ -56,6 +56,8 @@ static Window CreateAppWindow(const XVisualInfo *Visual, unsigned Width, unsigne
 //
 bool CreateOpenGL(unsigned Width, unsigned Height)
 {
+    puts("Creating GLX...");
+
     g_Display = XOpenDisplay(NULL);
     if (!g_Display)
     {
