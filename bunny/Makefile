@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c
-OBJS=main.o ogl_es.o utils.o gccxnamath.o fraps.o shader.o bunny.o
+OBJS=main.o xgl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
 
@@ -9,11 +9,11 @@ all: bunny
 bunny: $(OBJS) vsh.h fsh.h ../ogl_es.h
 	$(CC) $(OBJS) $(LDFLAGS) -o bunny
     
-main.o: ../main.cpp
-	$(CC) $(CFLAGS) ../main.cpp
+main.o: ../X11/main.cpp
+	$(CC) $(CFLAGS) ../X11/main.cpp
 	
-ogl_es.o: ../ogl_es.cpp
-	$(CC) $(CFLAGS) ../ogl_es.cpp
+xgl.o: ../X11/xgl.cpp
+	$(CC) $(CFLAGS) ../X11/xgl.cpp
 	
 utils.o: ../utils.cpp
 	$(CC) $(CFLAGS) ../utils.cpp
