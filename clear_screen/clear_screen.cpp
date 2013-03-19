@@ -1,4 +1,4 @@
-#include <GL/glew.h>
+#include "../ogl_es.h"
 
 void BeginFrame();
 void EndFrame();
@@ -27,7 +27,7 @@ void Render(unsigned Width, unsigned Height)
 
     glViewport(0, 0, Width, Height);
     glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
 
     EndFrame();
 }
