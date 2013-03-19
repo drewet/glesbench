@@ -79,7 +79,16 @@ GLuint LoadGLSLShaderFromFile(GLenum Target, const char *pFileName)
             fread(pSource, 1, Size, pFile);
             fclose(pFile);
 
+#ifdef GL_ES
+            GLchar *pSourceES = (GLchar *)calloc(Size + 100, 1);
+
+            strcpy(pSourceES, "precision mediump float;\n\n"); // This is required hint in GLSL ES
+            strcat(pSourceES, pSource);
+            Shader = LoadGLSLShader(Target, pSourceES);
+            free(pSourceES);
+#else
             Shader = LoadGLSLShader(Target, pSource);
+#endif // GL_ES
             free(pSource);
 
             return Shader;
