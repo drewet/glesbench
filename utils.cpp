@@ -1,7 +1,12 @@
 #include <stdio.h>
-#include <sys/timeb.h>
 
 #include "ogl_es.h"
+
+#ifdef USE_SDL
+#include "SDL.h"
+#else
+#include <sys/timeb.h>
+#endif
 
 //
 // glHandleErrors
@@ -29,6 +34,23 @@ void glHandleErrors(const char *pStr)
 float GetElapsedMilliseconds()
 {
     static bool bFirst = true;
+    float ElapsedTime;
+#ifdef USE_SDL
+    static Uint32 Prev, Curr;
+
+    if (bFirst)
+    {
+        Prev = SDL_GetTicks();
+        bFirst = false;
+        return 0.0f;
+    }
+
+    Curr = SDL_GetTicks();
+
+    ElapsedTime = (float)(Curr - Prev);
+    if (ElapsedTime > 0.0f)
+        Prev = Curr;
+#else
     static timeb Prev, Curr;
 
     if (bFirst)
@@ -40,13 +62,11 @@ float GetElapsedMilliseconds()
 
     ftime(&Curr);
 
-    float ElapsedTime;
-
     ElapsedTime = (Curr.time - Prev.time) * 1000.0f;
     ElapsedTime += (float)(Curr.millitm - Prev.millitm);
-
     if (ElapsedTime > 0.0f)
         Prev = Curr;
+#endif // !USE_SDL
 
     return ElapsedTime;
 }
