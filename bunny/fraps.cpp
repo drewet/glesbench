@@ -62,7 +62,6 @@ CFraps::CFraps():
         delete[] pData;
     }
 
-    puts("gen texture...");
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -70,7 +69,7 @@ CFraps::CFraps():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // OpenGL ES?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // OpenGL ES?
 
-#ifdef USE_GLES
+#ifdef USE_SDL
     GLenum InternalFormat = GL_RGBA;
     GLenum TexelFormat = GL_RGBA;
 #else
