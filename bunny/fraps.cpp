@@ -69,27 +69,24 @@ CFraps::CFraps():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // OpenGL ES?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // OpenGL ES?
+
 #ifdef USE_GLES
-    glTexImage2D(GL_TEXTURE_2D,
-        0, // Level
-        GL_RGBA,
-        FRAPS_GLYPH_WIDTH * 10,
-        FRAPS_GLYPH_HEIGHT,
-        0, // Border
-        GL_RGBA,
-        GL_UNSIGNED_BYTE,
-        g_FRAPSFont);
+    GLenum InternalFormat = GL_RGBA;
+    GLenum TexelFormat = GL_RGBA;
 #else
+    GLenum InternalFormat = GL_RGBA8;
+    GLenum TexelFormat = GL_BGRA;
+#endif
+
     glTexImage2D(GL_TEXTURE_2D,
         0, // Level
-        GL_RGBA8,
+        InternalFormat,
         FRAPS_GLYPH_WIDTH * 10,
         FRAPS_GLYPH_HEIGHT,
         0, // Border
-        GL_BGRA,
+        TexelFormat,
         GL_UNSIGNED_BYTE,
         g_FRAPSFont);
-#endif
 }
 
 //

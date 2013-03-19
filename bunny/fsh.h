@@ -22,5 +22,9 @@ const GLchar *g_pFshGlyph =
 "    vec4 color = texture2D(font, oTexcoord);\n"
 "    if (color.a < 1.0)\n"
 "        discard;\n"
-"    gl_FragColor = vec4(color.xyz, 1.);\n"
+#ifdef USE_GLES
+"    gl_FragColor = vec4(color.bgr, 1.);\n" // There is no GL_BGRA format in OpenGL ES
+#else
+"    gl_FragColor = vec4(color.rgb, 1.);\n"
+#endif
 "}\n";
