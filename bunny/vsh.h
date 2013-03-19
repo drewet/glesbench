@@ -8,7 +8,7 @@ const GLchar *g_pVshTransform =
 "\n"  
 "void main()\n"
 "{\n"
-"    gl_Position = vec4(position, 1.) * Mwvp;\n"
+"    gl_Position = Mwvp * vec4(position, 1.);\n"
 "}\n";
 
 //
@@ -23,7 +23,7 @@ const GLchar *g_pVshGlyph =
 "varying vec2       oTexcoord;\n"
 "void main()\n"
 "{\n"
-"    gl_Position = vec4(position, 0., 1.) * Mproj;\n"
+"    gl_Position = Mproj * vec4(position, 0., 1.);\n"
 "    oTexcoord = texcoord;\n"
 "}\n";
 
@@ -42,7 +42,7 @@ const GLchar *g_pVshPhong =
 "varying vec3       oNormal;\n"
 "void main()\n"
 "{\n"
-"    gl_Position = vec4(position, 1.) * Mwvp;\n"
-"    oPos = (vec4(position, 1.) * Mworld).xyz;\n"
-"    oNormal = (vec4(normal, 1.) * Mpivot).xyz;\n"
+"    gl_Position = Mwvp * vec4(position, 1.);\n"
+"    oPos = (Mworld * vec4(position, 1.)).xyz;\n"
+"    oNormal = (Mpivot * vec4(normal, 1.)).xyz;\n"
 "}\n";

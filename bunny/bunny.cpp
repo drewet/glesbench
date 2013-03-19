@@ -270,7 +270,7 @@ bool Initialize()
 {
     puts("Initialize...");
 
-#if !defined(USE_GLES)
+#if !defined(USE_SDL)
     glewInit();
 #endif
 
@@ -456,9 +456,9 @@ void UpdateBunnyConstantsVS()
     XMMATRIX WorldView = XMMatrixMultiply(World, g_View);
     XMMATRIX WorldViewProj = XMMatrixMultiply(WorldView, g_Proj);
     
-    glUniformMatrix4fv(g_PhongUniforms.Mpivot, 1, GL_TRUE, (const GLfloat *)&Pivot);
-    glUniformMatrix4fv(g_PhongUniforms.Mworld, 1, GL_TRUE, (const GLfloat *)&World);
-    glUniformMatrix4fv(g_PhongUniforms.Mwvp, 1, GL_TRUE, (const GLfloat *)&WorldViewProj);
+    glUniformMatrix4fv(g_PhongUniforms.Mpivot, 1, GL_FALSE, (const GLfloat *)&Pivot);
+    glUniformMatrix4fv(g_PhongUniforms.Mworld, 1, GL_FALSE, (const GLfloat *)&World);
+    glUniformMatrix4fv(g_PhongUniforms.Mwvp, 1, GL_FALSE, (const GLfloat *)&WorldViewProj);
 }
 
 //
@@ -496,7 +496,7 @@ void UpdateSphereConstantsVS(XMFLOAT3 Position)
     XMMATRIX WorldView = XMMatrixMultiply(ScaledWorld, g_View);
     XMMATRIX WorldViewProj = XMMatrixMultiply(WorldView, g_Proj);
 
-    glUniformMatrix4fv(g_WvpAndColorUniforms.Mwvp, 1, GL_TRUE, (const GLfloat *)&WorldViewProj);
+    glUniformMatrix4fv(g_WvpAndColorUniforms.Mwvp, 1, GL_FALSE, (const GLfloat *)&WorldViewProj);
 }
 
 //
@@ -508,7 +508,7 @@ void UpdateKnotConstantsVS(XMFLOAT3 Position)
     XMMATRIX WorldView = XMMatrixMultiply(World, g_View);
     XMMATRIX WorldViewProj = XMMatrixMultiply(WorldView, g_Proj);
 
-    glUniformMatrix4fv(g_WvpAndColorUniforms.Mwvp, 1, GL_TRUE, (const GLfloat *)&WorldViewProj);
+    glUniformMatrix4fv(g_WvpAndColorUniforms.Mwvp, 1, GL_FALSE, (const GLfloat *)&WorldViewProj);
 }
 
 //
@@ -630,7 +630,7 @@ void DrawFramesPerSecond(unsigned Width, unsigned Height)
         -1.0f, 1.0f);
 
     glUseProgram(g_GlyphProgram);
-    glUniformMatrix4fv(g_GlyphUniforms.Mproj, 1, GL_TRUE, (const GLfloat *)&Ortho);
+    glUniformMatrix4fv(g_GlyphUniforms.Mproj, 1, GL_FALSE, (const GLfloat *)&Ortho);
     glUniform1i(g_GlyphUniforms.Texture, 0); // texture unit
 
     g_pFraps->Draw(Width, Height);
@@ -641,6 +641,8 @@ void DrawFramesPerSecond(unsigned Width, unsigned Height)
 //
 void Render(unsigned Width, unsigned Height)
 {
+    static unsigned FrameIndex = 0;
+
     g_ElapsedTime = GetElapsedMilliseconds();
 
     BeginFrame();
@@ -669,6 +671,8 @@ void Render(unsigned Width, unsigned Height)
     DrawFramesPerSecond(Width, Height);
 
     EndFrame();
+    if (++FrameIndex % 200 == 0)
+        printf("Heartbeat : %d frames passed...\n", FrameIndex);
 
     g_pFraps->OnPresent();
 }
