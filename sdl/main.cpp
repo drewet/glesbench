@@ -1,7 +1,14 @@
 #include "SDL.h"
 
-const unsigned WINDOW_WIDTH = 1280;//1920;
-const unsigned WINDOW_HEIGHT = 720;//1080;
+#define HP_TOUCHPAD
+
+#ifdef HP_TOUCHPAD
+const unsigned WINDOW_WIDTH = 1024;
+const unsigned WINDOW_HEIGHT = 768;
+#else // TV, Desktop
+const unsigned WINDOW_WIDTH = 1280//1920;
+const unsigned WINDOW_HEIGHT = 720//1080;
+#endif // TOUCHPAD
 const char *WINDOW_CAPTION = "SDL/OpenGL App";
 
 bool CreateSDL(unsigned Width, unsigned Height);
