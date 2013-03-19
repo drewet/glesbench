@@ -1,3 +1,4 @@
+// Define this for SDL build
 #define USE_GLES
 
 #ifdef _WIN32
