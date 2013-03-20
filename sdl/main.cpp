@@ -1,7 +1,5 @@
 #include "SDL.h"
 
-#define HP_TOUCHPAD
-
 #ifdef HP_TOUCHPAD
 const unsigned WINDOW_WIDTH = 1024;
 const unsigned WINDOW_HEIGHT = 768;
