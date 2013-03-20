@@ -1,13 +1,26 @@
-#include "../ogl_es.h"
+#include "../fraps/fraps.h"
 
 void BeginFrame();
 void EndFrame();
+
+//
+// Globals
+//
+CFraps*                 g_pFraps;
 
 //
 // Initialize
 //
 bool Initialize()
 {
+    puts("Initialize...");
+
+#if !defined(USE_SDL)
+    glewInit();
+#endif
+
+    g_pFraps = new CFraps();
+
     return true;
 }
 
@@ -16,6 +29,7 @@ bool Initialize()
 //
 void Cleanup()
 {
+    delete g_pFraps;
 }
 
 //
@@ -27,7 +41,11 @@ void Render(unsigned Width, unsigned Height)
 
     glViewport(0, 0, Width, Height);
     glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    g_pFraps->Draw(Width, Height);
 
     EndFrame();
+
+    g_pFraps->OnPresent();
 }
