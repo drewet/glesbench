@@ -163,4 +163,9 @@ void BeginFrame()
 void EndFrame()
 {
     glXSwapBuffers(g_Display, g_Window);
+
+    static unsigned Count = 0;
+
+    if (++Count % 200 == 0)
+        printf("Heartbeat : %d frames passed...\n", Count);
 }

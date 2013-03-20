@@ -641,8 +641,6 @@ void DrawFramesPerSecond(unsigned Width, unsigned Height)
 //
 void Render(unsigned Width, unsigned Height)
 {
-    static unsigned FrameIndex = 0;
-
     g_ElapsedTime = GetElapsedMilliseconds();
 
     BeginFrame();
@@ -671,8 +669,6 @@ void Render(unsigned Width, unsigned Height)
     DrawFramesPerSecond(Width, Height);
 
     EndFrame();
-    if (++FrameIndex % 200 == 0)
-        printf("Heartbeat : %d frames passed...\n", FrameIndex);
 
     g_pFraps->OnPresent();
 }

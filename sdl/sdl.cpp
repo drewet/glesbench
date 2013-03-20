@@ -105,4 +105,9 @@ void BeginFrame()
 void EndFrame()
 {
     SDL_GL_SwapBuffers();
+
+    static unsigned Count = 0;
+
+    if (++Count % 200 == 0)
+        printf("Heartbeat : %d frames passed...\n", Count);
 }
