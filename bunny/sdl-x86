@@ -1,9 +1,14 @@
+PDK_PATH=/opt/PalmPDK
+
 CC=g++
-INCLUDES=-I/opt/PalmPDK/include -I/opt/PalmPDK/include/SDL
+
+INCLUDES=-I$(PDK_PATH)/include -I$(PDK_PATH)/include/SDL
 CFLAGS=-c $(INCLUDES) -DUSE_SDL
+
 OBJS=main.o sdl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
+
 LIBS=-lSDL -lGLESv2 -lpdl
-LDFLAGS=-L/opt/PalmPDK/host/lib $(LIBS)
+LDFLAGS=-L$(PDK_PATH)/host/lib $(LIBS)
 
 all: bunny-sdl-x86
 
