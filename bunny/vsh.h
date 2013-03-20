@@ -12,22 +12,6 @@ const GLchar *g_pVshTransform =
 "}\n";
 
 //
-// Glyph vertex shader
-//
-const GLchar *g_pVshGlyph =
-"uniform mat4       Mproj;\n"
-"\n"
-"attribute vec2     position;\n"
-"attribute vec2     texcoord;\n"
-"\n"
-"varying vec2       oTexcoord;\n"
-"void main()\n"
-"{\n"
-"    gl_Position = Mproj * vec4(position, 0., 1.);\n"
-"    oTexcoord = texcoord;\n"
-"}\n";
-
-//
 // Phong lighting vertex shader
 //
 const GLchar *g_pVshPhong =

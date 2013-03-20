@@ -11,10 +11,10 @@
 #include "../xna/gccxnamath.h"
 #endif
 
-#include "shader.h"
 #include "vsh.h"
 #include "fsh.h"
-#include "fraps.h"
+#include "../shader/shader.h"
+#include "../fraps/fraps.h"
 
 namespace bunny {
 #include "bunny.h"
@@ -63,12 +63,6 @@ struct WVP_COLOR_UNIFORMS
     GLint FillColor;
 };
 
-struct GLYPH_UNIFORMS
-{
-    GLint Mproj;
-    GLint Texture;
-};
-
 struct PHONG_UNIFORMS
 {
     GLint Mpivot;
@@ -95,8 +89,6 @@ GLuint                  g_WvpAndColorProgram;
 WVP_COLOR_UNIFORMS      g_WvpAndColorUniforms;
 GLuint                  g_PhongProgram;
 PHONG_UNIFORMS          g_PhongUniforms;
-GLuint                  g_GlyphProgram;
-GLYPH_UNIFORMS          g_GlyphUniforms;
 
 float                   g_ElapsedTime = 0.0f;
 POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
@@ -194,30 +186,6 @@ bool LoadShaders()
 
     g_WvpAndColorUniforms.Mwvp = GetUniformLocation(g_WvpAndColorProgram, "Mwvp");
     g_WvpAndColorUniforms.FillColor = GetUniformLocation(g_WvpAndColorProgram, "color");
-
-    //
-    // Glyph program
-    //
-    vsh = LoadGLSLShader(GL_VERTEX_SHADER, g_pVshGlyph);
-    fsh = LoadGLSLShader(GL_FRAGMENT_SHADER, g_pFshGlyph);
-    if ((0 == vsh) || (0 == fsh))
-        return false;
-    g_GlyphProgram = glCreateProgram();
-    glAttachShader(g_GlyphProgram, vsh);
-    glAttachShader(g_GlyphProgram, fsh);
-    glBindAttribLocation(g_GlyphProgram, 0, "position");
-    glBindAttribLocation(g_GlyphProgram, 1, "texcoord");
-    bLinked = LinkGLSLProgram(g_GlyphProgram);
-    glDeleteShader(fsh);
-    glDeleteShader(vsh);
-    if (!bLinked)
-    {
-        glDeleteProgram(g_GlyphProgram);
-        return false;
-    }
-
-    g_GlyphUniforms.Mproj = GetUniformLocation(g_GlyphProgram, "Mproj");
-    g_GlyphUniforms.Texture = GetUniformLocation(g_GlyphProgram, "font");
 
     //
     // Phong lighting program
@@ -398,7 +366,6 @@ void Cleanup()
     delete g_pFraps;
 
     glDeleteProgram(g_PhongProgram);
-    glDeleteProgram(g_GlyphProgram);
     glDeleteProgram(g_WvpAndColorProgram);
 
     glDeleteBuffers(1, &g_SphereIB);
@@ -618,25 +585,6 @@ void DrawLights()
 }
 
 //
-// DrawFramesPerSecond
-//
-void DrawFramesPerSecond(unsigned Width, unsigned Height)
-{
-    XMMATRIX Ortho = XMMatrixOrthographicOffCenterRH(
-        0.0f,           // Left
-        (float)Width,   // Right
-        0.0f,           // Bottom
-        (float)Height,  // Top
-        -1.0f, 1.0f);
-
-    glUseProgram(g_GlyphProgram);
-    glUniformMatrix4fv(g_GlyphUniforms.Mproj, 1, GL_FALSE, (const GLfloat *)&Ortho);
-    glUniform1i(g_GlyphUniforms.Texture, 0); // texture unit
-
-    g_pFraps->Draw(Width, Height);
-}
-
-//
 // Render
 //
 void Render(unsigned Width, unsigned Height)
@@ -666,7 +614,8 @@ void Render(unsigned Width, unsigned Height)
     DrawBunny();
     //DrawKnots();
     DrawLights();
-    DrawFramesPerSecond(Width, Height);
+
+    g_pFraps->Draw(Width, Height);
 
     EndFrame();
 

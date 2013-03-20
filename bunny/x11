@@ -6,7 +6,7 @@ LDFLAGS=$(LIBS)
 
 all: bunny
 
-bunny: $(OBJS) vsh.h fsh.h ../ogl_es.h
+bunny: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o bunny
     
 main.o: ../X11/main.cpp
@@ -21,11 +21,11 @@ utils.o: ../utils.cpp
 gccxnamath.o: ../xna/gccxnamath.cpp
 	$(CC) $(CFLAGS) ../xna/gccxnamath.cpp
 	
-fraps.o: fraps.cpp fraps.h
-	$(CC) $(CFLAGS) fraps.cpp
+fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
+	$(CC) $(CFLAGS) ../fraps/fraps.cpp
 	
-shader.o: shader.cpp shader.h
-	$(CC) $(CFLAGS) shader.cpp
+shader.o: ../shader/shader.cpp ../shader/shader.h
+	$(CC) $(CFLAGS) ../shader/shader.cpp
 	
 bunny.o: bunny.cpp vsh.h fsh.h
 	$(CC) $(CFLAGS) bunny.cpp
