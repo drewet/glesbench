@@ -9,14 +9,14 @@
 //
 // Globals
 //
-Display*            g_Display               = NULL;
+Display*            g_pDisplay              = NULL;
 Window              g_Window                = 0;
 
-XVisualInfo*        g_Visual                = NULL;
+XVisualInfo*        g_pVisual               = NULL;
 
 GLXContext          g_Context               = 0;
-GLXFBConfig*        g_FBConfig              = NULL;      // GLX 1.3
-GLXWindow           g_Drawable              = 0;         // GLX 1.3
+//GLXFBConfig*        g_pFBConfig             = NULL;      // GLX 1.3
+//GLXWindow           g_Drawable              = 0;         // GLX 1.3
 
 //
 // CreateAppWindow
@@ -27,8 +27,8 @@ static Window CreateAppWindow(const XVisualInfo *Visual, unsigned Width, unsigne
     XSetWindowAttributes Attribs;
 
     cm = XCreateColormap(
-        g_Display,
-        RootWindow(g_Display, Visual->screen),
+        g_pDisplay,
+        RootWindow(g_pDisplay, Visual->screen),
         Visual->visual,
         AllocNone);
 
@@ -37,8 +37,8 @@ static Window CreateAppWindow(const XVisualInfo *Visual, unsigned Width, unsigne
     Attribs.event_mask = (KeyPressMask | KeyReleaseMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | ButtonMotionMask);
 
     Window Wnd = XCreateWindow(
-        g_Display,
-        RootWindow(g_Display, Visual->screen),
+        g_pDisplay,
+        RootWindow(g_pDisplay, Visual->screen),
         0, 0,
         Width, Height,
         0,
@@ -58,8 +58,8 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
 {
     puts("Creating GLX...");
 
-    g_Display = XOpenDisplay(NULL);
-    if (!g_Display)
+    g_pDisplay = XOpenDisplay(NULL);
+    if (!g_pDisplay)
     {
         puts("Failed to open display.");
         return false;
@@ -68,12 +68,12 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
     int Error;
     int Event;
 
-    glXQueryExtension(g_Display, &Error, &Event);
+    glXQueryExtension(g_pDisplay, &Error, &Event);
 
     int MajorNumber;
     int MinorNumber;
 
-    glXQueryVersion(g_Display, &MajorNumber, &MinorNumber);
+    glXQueryVersion(g_pDisplay, &MajorNumber, &MinorNumber);
     printf("GLX version: %d.%d\n", MajorNumber, MinorNumber);
 
     std::vector<int> Attribs;
@@ -103,24 +103,24 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
     Attribs.push_back(0);
 
     puts("Choose visual...");
-    g_Visual = glXChooseVisual(g_Display, DefaultScreen(g_Display), &Attribs[0] );
-    if (!g_Visual)
+    g_pVisual = glXChooseVisual(g_pDisplay, DefaultScreen(g_pDisplay), &Attribs[0] );
+    if (!g_pVisual)
     {
         puts("No conforming visual exists.");
         return false;
     }
 
-    g_Context = glXCreateContext(g_Display, g_Visual, NULL, True);
+    g_Context = glXCreateContext(g_pDisplay, g_pVisual, NULL, True);
     if (!g_Context)
     {
         puts("Failed to create direct rendering context." );
         return false;
     }
 
-    g_Window = CreateAppWindow(g_Visual, Width, Height);
+    g_Window = CreateAppWindow(g_pVisual, Width, Height);
 
-    printf("glXMakeCurrent(%p, %d, %p)\n", g_Display, (unsigned)g_Window, g_Context);
-    if (!glXMakeCurrent(g_Display, g_Window, g_Context))
+    printf("glXMakeCurrent(%p, %d, %p)\n", g_pDisplay, (unsigned)g_Window, g_Context);
+    if (!glXMakeCurrent(g_pDisplay, g_Window, g_Context))
     {
         puts("Failed to make rendering context current.");
         return false;
@@ -139,14 +139,16 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
 //
 void DestroyOpenGL()
 {
-    glXDestroyContext(g_Display, g_Context);
+    glXDestroyContext(g_pDisplay, g_Context);
 
-    XDestroyWindow(g_Display, g_Window);
+    XDestroyWindow(g_pDisplay, g_Window);
 
-    if (g_Visual)
-        XFree(g_Visual);
+    if (g_pVisual)
+        XFree(g_pVisual);
+    /*
     else if (g_FBConfig)
         XFree(g_FBConfig);
+    */
 }
 
 //
@@ -154,7 +156,7 @@ void DestroyOpenGL()
 //
 void BeginFrame()
 {
-    glXMakeCurrent(g_Display, g_Window, g_Context);
+    glXMakeCurrent(g_pDisplay, g_Window, g_Context);
 }
 
 //
@@ -162,7 +164,7 @@ void BeginFrame()
 //
 void EndFrame()
 {
-    glXSwapBuffers(g_Display, g_Window);
+    glXSwapBuffers(g_pDisplay, g_Window);
 
     static unsigned Count = 0;
 

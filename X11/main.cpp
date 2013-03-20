@@ -14,7 +14,7 @@ void Render(unsigned Width, unsigned Height);
 //
 // Globals
 //
-extern Display*     g_Display;
+extern Display*     g_pDisplay;
 extern Window       g_Window;
 
 Atom                g_DeleteWindow;
@@ -36,7 +36,7 @@ void ShowAppWindow()
     ScreenHeight = 1080;
 
     XSetStandardProperties(
-        g_Display,
+        g_pDisplay,
         g_Window,
         WINDOW_CAPTION,
         WINDOW_CAPTION,
@@ -53,13 +53,13 @@ void ShowAppWindow()
     Hints.min_width = Hints.max_width = WINDOW_WIDTH;
     Hints.min_height = Hints.max_height = WINDOW_HEIGHT;
 
-    XSetWMNormalHints(g_Display, g_Window, &Hints);
+    XSetWMNormalHints(g_pDisplay, g_Window, &Hints);
 
     // Catch [x] UI element click
-    g_DeleteWindow = XInternAtom(g_Display, "WM_DELETE_WINDOW", True);
-    g_Protocols = XInternAtom(g_Display, "WM_PROTOCOLS", True);
+    g_DeleteWindow = XInternAtom(g_pDisplay, "WM_DELETE_WINDOW", True);
+    g_Protocols = XInternAtom(g_pDisplay, "WM_PROTOCOLS", True);
 
-    XSetWMProtocols(g_Display, g_Window, &g_DeleteWindow, 1);
+    XSetWMProtocols(g_pDisplay, g_Window, &g_DeleteWindow, 1);
 
     XWindowChanges Changes;
 
@@ -72,10 +72,10 @@ void ShowAppWindow()
         Changes.y = (ScreenHeight - WINDOW_HEIGHT) / 2;
     }
 
-    XMapRaised(g_Display, g_Window);
-    XConfigureWindow(g_Display, g_Window, CWX | CWY, &Changes);
+    XMapRaised(g_pDisplay, g_Window);
+    XConfigureWindow(g_pDisplay, g_Window, CWX | CWY, &Changes);
 
-    XFlush(g_Display);
+    XFlush(g_pDisplay);
 }
 
 //
@@ -85,11 +85,11 @@ void EventLoop()
 {
     while (true)
     {
-        while (XPending(g_Display))
+        while (XPending(g_pDisplay))
         {
             XEvent Event;
 
-            XNextEvent(g_Display, &Event);
+            XNextEvent(g_pDisplay, &Event);
             switch (Event.type)
             {
             case KeyPress:
