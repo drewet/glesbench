@@ -1,7 +1,11 @@
-#include "SDL.h"
-#include "PDL.h"
-
+#ifndef LG_TV
 #define USE_PDL
+#endif
+
+#include "SDL.h"
+#ifdef USE_PDL
+#include "PDL.h"
+#endif
 
 //
 // Globals
@@ -20,8 +24,17 @@ bool CreateSDL(unsigned Width, unsigned Height)
     PDL_Init(0);
 #endif
 
+#ifdef LG_TV
+    SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 8);
+    //SDL_GL_SetAttribute(SDL_GL_ALPHA_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 16);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+#else
     // Tell it to use OpenGL version 2.0
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+#endif
 
     // Set the video mode to full screen with OpenGL-ES support
     // use zero for width/height to use maximum resolution
