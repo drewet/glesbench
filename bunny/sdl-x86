@@ -5,10 +5,10 @@ OBJS=main.o sdl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 LIBS=-lSDL -lGLESv2 -lpdl
 LDFLAGS=-L/opt/PalmPDK/host/lib $(LIBS)
 
-all: bunny
+all: bunny-sdl-x86
 
-bunny: $(OBJS) vsh.h fsh.h ../ogl_es.h
-	$(CC) $(OBJS) $(LDFLAGS) -o bunny 
+bunny-sdl-x86: $(OBJS) vsh.h fsh.h ../ogl_es.h
+	$(CC) $(OBJS) $(LDFLAGS) -o bunny-sdl-x86 
     
 main.o: ../sdl/main.cpp
 	$(CC) $(CFLAGS) ../sdl/main.cpp
@@ -32,4 +32,4 @@ bunny.o: bunny.cpp vsh.h fsh.h
 	$(CC) $(CFLAGS) bunny.cpp
     
 clean:
-	rm -rf *.o bunny
+	rm -rf *.o bunny-sdl-x86
