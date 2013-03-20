@@ -1,14 +1,14 @@
 CC=/opt/PalmPDK/arm-gcc/bin/arm-none-linux-gnueabi-g++
 INCLUDES=-I/opt/PalmPDK/include -I/opt/PalmPDK/include/SDL
-CFLAGS=-c $(INCLUDES) -DUSE_SDL -DGL_ES
+CFLAGS=-c $(INCLUDES) -DUSE_SDL -DGL_ES -DHP_TOUCHPAD
 OBJS=main.o sdl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 LIBS=-lSDL -lGLESv2 -lpdl
 LDFLAGS=-L/opt/PalmPDK/device/lib $(LIBS)
 
-all: bunny
+all: bunny-sdl-arm
 
-bunny: $(OBJS) vsh.h fsh.h ../ogl_es.h
-	$(CC) $(OBJS) $(LDFLAGS) -o bunny 
+bunny-sdl-arm: $(OBJS) vsh.h fsh.h ../ogl_es.h
+	$(CC) $(OBJS) $(LDFLAGS) -o bunny-sdl-arm
     
 main.o: ../sdl/main.cpp
 	$(CC) $(CFLAGS) ../sdl/main.cpp
@@ -32,4 +32,4 @@ bunny.o: bunny.cpp vsh.h fsh.h
 	$(CC) $(CFLAGS) bunny.cpp
     
 clean:
-	rm -rf *.o bunny
+	rm -rf *.o bunny-sdl-arm
