@@ -7,6 +7,8 @@ SDL_Surface*        g_pSurface;
 
 //
 // CreateSDL
+// Note: PDL is needed for x86 SDL implementation (otherwise OpenGL context will not be created)
+// PDL doesn't needed on touchpad
 //
 bool CreateSDL(unsigned Width, unsigned Height)
 {
@@ -30,6 +32,8 @@ bool CreateSDL(unsigned Width, unsigned Height)
     // Set the video mode to full screen with OpenGL-ES support
     // use zero for width/height to use maximum resolution
     g_pSurface = SDL_SetVideoMode(Width, Height, 0, SDL_OPENGL);
+
+    return true;
 }
 
 //
