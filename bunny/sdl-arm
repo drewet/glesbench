@@ -4,7 +4,7 @@ ARM_GCC_PATH=/arm-gcc/bin
 CC=$(PDK_PATH)$(ARM_GCC_PATH)/arm-none-linux-gnueabi-g++
 
 INCLUDES=-I$(PDK_PATH)/include -I$(PDK_PATH)/include/SDL
-CFLAGS=-c $(INCLUDES) -DUSE_SDL -DGL_ES -DHP_TOUCHPAD
+CFLAGS=-c $(INCLUDES) -DUSE_SDL -DGL_ES -DTOUCHPAD
 
 OBJS=main.o sdl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 

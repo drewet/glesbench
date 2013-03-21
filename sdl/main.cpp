@@ -1,6 +1,6 @@
 #include "SDL.h"
 
-#ifdef HP_TOUCHPAD
+#ifdef TOUCHPAD
 const unsigned WINDOW_WIDTH = 1024;
 const unsigned WINDOW_HEIGHT = 768;
 #else // TV, Desktop
