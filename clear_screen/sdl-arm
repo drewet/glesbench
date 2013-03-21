@@ -6,7 +6,7 @@ CC=$(PDK_PATH)$(ARM_GCC_PATH)/arm-none-linux-gnueabi-g++
 INCLUDES=-I$(PDK_PATH)/include -I$(PDK_PATH)/include/SDL
 CFLAGS=-c $(INCLUDES) -DUSE_SDL -DGL_ES -DTOUCHPAD
 
-OBJS=main.o sdl.o utils.o fraps.o shader.o clear_screen.o
+OBJS=main.o sdl.o utils.o fraps.o shader.o clear.o
 
 LIBS=-lSDL -lGLESv2
 LDFLAGS=-L$(PDK_PATH)/device/lib $(LIBS)
@@ -31,8 +31,8 @@ fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
 shader.o: ../shader/shader.cpp ../shader/shader.h
 	$(CC) $(CFLAGS) ../shader/shader.cpp
 
-clear_screen.o: clear_screen.cpp
-	$(CC) $(CFLAGS) clear_screen.cpp
+clear.o: clear.cpp
+	$(CC) $(CFLAGS) clear.cpp
     
 clean:
 	rm -rf *.o clear-sdl-arm
