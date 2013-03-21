@@ -7,12 +7,12 @@ CFLAGS=-c $(INCLUDES) -DUSE_SDL
 
 OBJS=main.o sdl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 
-LIBS=-lSDL -lGLESv2 -lpdl
+LIBS=-lSDL -lGLESv2
 LDFLAGS=-L$(PDK_PATH)/host/lib $(LIBS)
 
 all: bunny-sdl-x86
 
-bunny-sdl-x86: $(OBJS) vsh.h fsh.h ../ogl_es.h
+bunny-sdl-x86: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o bunny-sdl-x86 
     
 main.o: ../sdl/main.cpp

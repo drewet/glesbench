@@ -8,12 +8,12 @@ CFLAGS=-c $(INCLUDES) -DUSE_SDL -DGL_ES -DTOUCHPAD
 
 OBJS=main.o sdl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 
-LIBS=-lSDL -lGLESv2 -lpdl
+LIBS=-lSDL -lGLESv2
 LDFLAGS=-L$(PDK_PATH)/device/lib $(LIBS)
 
 all: bunny-sdl-arm
 
-bunny-sdl-arm: $(OBJS) vsh.h fsh.h ../ogl_es.h
+bunny-sdl-arm: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o bunny-sdl-arm
     
 main.o: ../sdl/main.cpp
