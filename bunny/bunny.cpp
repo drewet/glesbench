@@ -17,15 +17,15 @@
 #include "../fraps/fraps.h"
 
 namespace bunny {
-#include "bunny.h"
+#include "models/bunny.h"
 }
 
 namespace knot {
-#include "knot.h"
+#include "models/knot.h"
 }
 
 namespace sphere {
-#include "sphere.h"
+#include "models/sphere.h"
 }
 
 void BeginFrame();
