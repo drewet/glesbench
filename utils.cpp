@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 
 #include "ogl_es.h"
 
@@ -69,4 +70,27 @@ float GetElapsedMilliseconds()
 #endif // !USE_SDL
 
     return ElapsedTime;
+}
+
+//
+// PrintExtensions
+//
+void PrintExtensions(const char *pExtensions)
+{
+    char *s = new char[strlen(pExtensions) + 1];
+
+    if (s)
+    {
+        const char *tok;
+
+        strcpy(s, pExtensions);
+        tok = strtok(s, " ");
+        while (tok)
+        {
+            puts(tok);
+            tok = strtok(NULL, " ");
+        }
+    }
+
+    delete[] s;
 }
