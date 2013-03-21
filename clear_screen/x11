@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c
-OBJS=main.o xgl.o fraps.o shader.o clear_screen.o
+OBJS=main.o xgl.o utils.o fraps.o shader.o clear_screen.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
 
@@ -14,6 +14,9 @@ main.o: ../X11/main.cpp
 	
 xgl.o: ../X11/xgl.cpp
 	$(CC) $(CFLAGS) ../X11/xgl.cpp
+
+utils.o: ../utils.cpp
+	$(CC) $(CFLAGS) ../utils.cpp
 
 fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
 	$(CC) $(CFLAGS) ../fraps/fraps.cpp
