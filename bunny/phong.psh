@@ -1,4 +1,4 @@
-#define MAX_POINT_LIGHTS 8
+#define MAX_POINT_LIGHTS 5
 
 uniform vec3       light[MAX_POINT_LIGHTS];
 uniform float      radius[MAX_POINT_LIGHTS];
@@ -37,7 +37,7 @@ void main()
     vec3 color = vec3(0., 0., 0.);
     const float mat_spec_power = 64.0;
                 
-    for (int i = 0; i < 5/*MAX_POINT_LIGHTS*/; ++i)
+    for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
         vec3 L = normalize(light[i] - oPos);
         vec3 C = phong(N, L, V, Kd[i], 0.15, Kd[i], 0.8, Ks[i], 0.4, mat_spec_power);

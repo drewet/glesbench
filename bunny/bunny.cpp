@@ -37,7 +37,7 @@ float GetElapsedMilliseconds();
 
 enum
 {
-    MAX_POINT_LIGHTS = 8
+    MAX_POINT_LIGHTS = 5//8
 };
 
 struct POINT_LIGHT_SOURCE
@@ -258,7 +258,7 @@ bool Initialize()
 
     l = &g_PointLights[0];
     l->Center = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-    l->AttenuationRadius = 1.0f;
+    l->AttenuationRadius = 2.0f;
     l->DiffuseColor = XMFLOAT3(1.0f, 0.5f, 0.0f);
     l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
     l->bMoveable = false;
@@ -269,7 +269,7 @@ bool Initialize()
 
     l = &g_PointLights[1];
     l->Center = XMFLOAT3(1.0f, 1.5f, 1.0f);
-    l->AttenuationRadius = 3.0f;
+    l->AttenuationRadius = 5.0f;
     l->DiffuseColor = XMFLOAT3(0.0f, 0.5f, 0.25f);
     l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
     l->bMoveable = false;
@@ -280,7 +280,7 @@ bool Initialize()
 
     l = &g_PointLights[2];
     l->Center = XMFLOAT3(0.5f, -1.0f, 1.0f);
-    l->AttenuationRadius = 1.0f;
+    l->AttenuationRadius = 2.0f;
     l->DiffuseColor = XMFLOAT3(0.0f, 0.25f, 1.0f);
     l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
     l->bMoveable = false;
@@ -295,7 +295,7 @@ bool Initialize()
 
     l = &g_PointLights[3];
     l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    l->AttenuationRadius = 4.0f;
+    l->AttenuationRadius = 6.0f;
     l->DiffuseColor = XMFLOAT3(126.0f/255.0f, 237.0f/255.0f, 199.0f/255.0f);
     l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
     l->bMoveable = true;
@@ -314,7 +314,7 @@ bool Initialize()
     l->OrbitRadius = 1.25f;
     l->OrbitRoll = 65.0f;
     l->Velocity = 3.0f;
-
+/*
     l = &g_PointLights[5];
     l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
     l->AttenuationRadius = 2.0f;
@@ -347,7 +347,7 @@ bool Initialize()
     l->OrbitRadius = 2.0f;
     l->OrbitRoll = -20.0f;
     l->Velocity = 6.0f;
-
+*/
     // Setup render states once
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
