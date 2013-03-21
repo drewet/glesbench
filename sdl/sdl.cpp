@@ -1,4 +1,7 @@
 #include "SDL.h"
+#include "../ogl_es.h"
+
+void PrintExtensions(const char *pExtensions);
 
 //
 // Globals
@@ -32,6 +35,11 @@ bool CreateSDL(unsigned Width, unsigned Height)
     // Set the video mode to full screen with OpenGL-ES support
     // use zero for width/height to use maximum resolution
     g_pSurface = SDL_SetVideoMode(Width, Height, 0, SDL_OPENGL);
+
+    printf("GL_RENDERER: %s\n", (const char *)glGetString(GL_RENDERER));
+    printf("GL_VERSION: %s\n", (const char *)glGetString(GL_VERSION));
+    printf("GL_VENDOR: %s\n", (const char *)glGetString(GL_VENDOR));
+    PrintExtensions((const char *)glGetString(GL_EXTENSIONS));
 
     return true;
 }

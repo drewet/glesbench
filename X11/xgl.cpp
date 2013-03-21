@@ -6,6 +6,8 @@
 #include <X11/Xlib.h>
 #include <GL/glx.h>
 
+void PrintExtensions(const char *pExtensions);
+
 //
 // Globals
 //
@@ -129,7 +131,7 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
     printf("GL_RENDERER: %s\n", (const char *)glGetString(GL_RENDERER));
     printf("GL_VERSION: %s\n", (const char *)glGetString(GL_VERSION));
     printf("GL_VENDOR: %s\n", (const char *)glGetString(GL_VENDOR));
-    //printf("GL_EXTENSIONS: %s\n", (const char *)glGetString(GL_EXTENSIONS));
+    PrintExtensions((const char *)glGetString(GL_EXTENSIONS));
 
     return true;
 }
