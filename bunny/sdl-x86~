@@ -12,7 +12,7 @@ LDFLAGS=-L$(PDK_PATH)/host/lib $(LIBS)
 
 all: bunny-sdl-x86
 
-bunny-sdl-x86: $(OBJS)
+bunny-sdl-x86: $(OBJS) vsh.h fsh.h ../ogl_es.h
 	$(CC) $(OBJS) $(LDFLAGS) -o bunny-sdl-x86 
     
 main.o: ../sdl/main.cpp
