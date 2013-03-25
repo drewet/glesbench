@@ -1,5 +1,6 @@
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <memory.h>
 
 const unsigned WINDOW_WIDTH = 1280;//1920;
 const unsigned WINDOW_HEIGHT = 720;//1080;
@@ -63,8 +64,7 @@ void ShowAppWindow()
 
     XWindowChanges Changes;
 
-    Changes.x = 0;
-    Changes.y = 0;
+    memset(&Changes, 0, sizeof(Changes));
     if ((WINDOW_WIDTH < ScreenWidth) &&
         (WINDOW_HEIGHT < ScreenHeight))
     {
