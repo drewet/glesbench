@@ -9,25 +9,7 @@
 #include <sys/timeb.h>
 #endif
 
-//
-// glHandleErrors
-//
-void glHandleErrors(const char *pStr)
-{
-    const char *Codes[] =
-    {
-        "GL_INVALID_ENUM",
-        "GL_INVALID_VALUE",
-        "GL_INVALID_OPERATION",
-        "GL_STACK_OVERFLOW",
-        "GL_STACK_UNDERFLOW",
-        "GL_OUT_OF_MEMORY"
-    };
-
-    GLenum Error = glGetError();
-    if (Error != GL_NO_ERROR)
-        printf("GL error: %s at line %s\n", Codes[Error - 0x0500], pStr);
-}
+#define COMPILETIMESTRING(x) return #x;
 
 //
 // GetElapsedMilliseconds
@@ -94,3 +76,53 @@ void PrintExtensions(const char *pExtensions)
 
     delete[] s;
 }
+
+//
+// StringifyGLError
+//
+const char *StringifyGLError(GLenum Error)
+{
+    switch (Error)
+    {
+    COMPILETIMESTRING(GL_NO_ERROR)
+    COMPILETIMESTRING(GL_INVALID_ENUM)
+    COMPILETIMESTRING(GL_INVALID_VALUE)
+    COMPILETIMESTRING(GL_INVALID_OPERATION)
+    COMPILETIMESTRING(GL_STACK_OVERFLOW)
+    COMPILETIMESTRING(GL_STACK_UNDERFLOW)
+    COMPILETIMESTRING(GL_OUT_OF_MEMORY)
+    }
+
+    return "n/a";
+}
+
+#ifdef __egl_h_
+
+//
+// StringifyEGLError
+//
+const char *StringifyEGLError(EGLint Error)
+{
+    switch (Error)
+    {
+    COMPILETIMESTRING(EGL_SUCCESS)
+    COMPILETIMESTRING(EGL_NOT_INITIALIZED)
+    COMPILETIMESTRING(EGL_BAD_ACCESS)
+    COMPILETIMESTRING(EGL_BAD_ALLOC)
+    COMPILETIMESTRING(EGL_BAD_ATTRIBUTE)
+    COMPILETIMESTRING(EGL_BAD_CONFIG)
+    COMPILETIMESTRING(EGL_BAD_CONTEXT)
+    COMPILETIMESTRING(EGL_BAD_CURRENT_SURFACE)
+    COMPILETIMESTRING(EGL_BAD_DISPLAY)
+    COMPILETIMESTRING(EGL_BAD_MATCH)
+    COMPILETIMESTRING(EGL_BAD_NATIVE_PIXMAP)
+    COMPILETIMESTRING(EGL_BAD_NATIVE_WINDOW)
+    COMPILETIMESTRING(EGL_BAD_PARAMETER)
+    COMPILETIMESTRING(EGL_BAD_SURFACE)
+    COMPILETIMESTRING(EGL_CONTEXT_LOST)
+    }
+
+    return "n/a";
+}
+
+#endif // __egl_h_
