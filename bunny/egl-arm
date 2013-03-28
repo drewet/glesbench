@@ -1,0 +1,44 @@
+GOLDFINGER_PATH=/home/viktor/dev/build-starfish/BUILD-goldfinger/sysroots/goldfinger
+ARM_GCC_PATH=/home/viktor/dev/build-starfish/GF_ToolChain/H13/arm-taskone-lg115x-linux-gnueabi/bin
+
+LIB_PATH=$(GOLDFINGER_PATH)/usr/lib
+INCLUDE_PATH=$(GOLDFINGER_PATH)/usr/include
+
+CC=$(ARM_GCC_PATH)/arm-lg115x-linux-gnueabi-g++
+
+INCLUDES=-I$(INCLUDE_PATH)
+CFLAGS=-c $(INCLUDES) -g -DUSE_EGL -DGL_ES 
+
+OBJS=main.o egl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
+
+LIBS=-lEGL -lGLESv2 -lIMGegl -lsrv_um -lusc
+LDFLAGS=-L$(LIB_PATH) $(LIBS)
+
+all: bunny-egl
+
+bunny-egl: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o bunny-egl
+    
+main.o: ../EGL/main.cpp
+	$(CC) $(CFLAGS) ../EGL/main.cpp
+	
+egl.o: ../EGL/egl.cpp
+	$(CC) $(CFLAGS) ../EGL/egl.cpp
+
+utils.o: ../utils.cpp
+	$(CC) $(CFLAGS) ../utils.cpp
+	
+gccxnamath.o: ../xna/gccxnamath.cpp
+	$(CC) $(CFLAGS) ../xna/gccxnamath.cpp
+	
+fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
+	$(CC) $(CFLAGS) ../fraps/fraps.cpp
+	
+shader.o: ../shader/shader.cpp ../shader/shader.h
+	$(CC) $(CFLAGS) ../shader/shader.cpp
+	
+bunny.o: bunny.cpp vsh.h fsh.h
+	$(CC) $(CFLAGS) bunny.cpp
+    
+clean:
+	rm -rf *.o bunny-egl
