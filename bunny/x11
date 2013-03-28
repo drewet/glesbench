@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-c
+CFLAGS=-c -g
 OBJS=main.o xgl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)

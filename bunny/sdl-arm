@@ -4,17 +4,17 @@ ARM_GCC_PATH=/arm-gcc/bin
 CC=$(PDK_PATH)$(ARM_GCC_PATH)/arm-none-linux-gnueabi-g++
 
 INCLUDES=-I$(PDK_PATH)/include -I$(PDK_PATH)/include/SDL
-CFLAGS=-c $(INCLUDES) -DUSE_SDL -DGL_ES -DTOUCHPAD
+CFLAGS=-c $(INCLUDES) -g -DUSE_SDL -DGL_ES -DTOUCHPAD
 
 OBJS=main.o sdl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
 
 LIBS=-lSDL -lGLESv2
 LDFLAGS=-L$(PDK_PATH)/device/lib $(LIBS)
 
-all: bunny-sdl-arm
+all: bunny-sdl
 
-bunny-sdl-arm: $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -o bunny-sdl-arm
+bunny-sdl: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o bunny-sdl
     
 main.o: ../sdl/main.cpp
 	$(CC) $(CFLAGS) ../sdl/main.cpp
@@ -38,4 +38,4 @@ bunny.o: bunny.cpp vsh.h fsh.h
 	$(CC) $(CFLAGS) bunny.cpp
     
 clean:
-	rm -rf *.o bunny-sdl-arm
+	rm -rf *.o bunny-sdl
