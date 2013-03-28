@@ -238,7 +238,7 @@ bool Initialize()
 {
     puts("Initialize...");
 
-#if !defined(USE_SDL)
+#if !defined(USE_SDL) && !defined(USE_EGL)
     glewInit();
 #endif
 
