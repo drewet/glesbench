@@ -7,7 +7,7 @@ INCLUDE_PATH=$(GOLDFINGER_PATH)/usr/include
 CC=$(ARM_GCC_PATH)/arm-lg115x-linux-gnueabi-g++
 
 INCLUDES=-I$(INCLUDE_PATH)
-CFLAGS=-c $(INCLUDES) -g -DGL_ES -DLG_TV
+CFLAGS=-c $(INCLUDES) -g -DUSE_EGL -DGL_ES
 
 OBJS=main.o egl.o utils.o fraps.o shader.o clear.o
 
