@@ -73,7 +73,7 @@ CFraps::CFraps():
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE); // OpenGL ES?
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE); // OpenGL ES?
 
-#ifdef USE_SDL
+#ifdef GL_ES
     GLenum InternalFormat = GL_RGBA;
     GLenum TexelFormat = GL_RGBA;
 #else
@@ -121,7 +121,7 @@ CFraps::CFraps():
     "    vec4 color = texture2D(font, oTexcoord);\n"
     "    if (color.a < 1.0)\n"
     "        discard;\n"
-    #ifdef USE_SDL
+    #ifdef GL_ES
     "    gl_FragColor = vec4(color.bgr, 1.);\n" // There is no GL_BGRA format in OpenGL ES
     #else
     "    gl_FragColor = vec4(color.rgb, 1.);\n"
