@@ -3,7 +3,7 @@
 #ifdef TOUCHPAD
 const unsigned WINDOW_WIDTH = 1024;
 const unsigned WINDOW_HEIGHT = 768;
-#else // TV, Desktop
+#else // Desktop
 const unsigned WINDOW_WIDTH = 1280;//1920;
 const unsigned WINDOW_HEIGHT = 720;//1080;
 #endif // TOUCHPAD
