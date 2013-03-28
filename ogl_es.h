@@ -2,14 +2,13 @@
 #include <windows.h>
 #endif
 
-#ifdef USE_SDL // Define this for SDL build
-#include <GLES2/gl2.h>
+#if defined(LG_TV)
+#   include <GLES2/gl2.h>
+#   include <EGL/egl.h>
+#elif defined(USE_SDL)
+#   include <GLES2/gl2.h>
 typedef char GLchar; // Some GLES headers do not typedef this
 #else
-#include <GL/glew.h>
-#ifdef _WIN32
-#include <GL/wglew.h>
-#else
-#include <GL/glx.h>
-#endif // _WIN32
-#endif // USE_SDL
+#   include <GL/glew.h>
+#   include <GL/glx.h>
+#endif

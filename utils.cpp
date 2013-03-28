@@ -75,6 +75,7 @@ void PrintExtensions(const char *pExtensions)
     }
 
     delete[] s;
+    printf("\n");
 }
 
 //
