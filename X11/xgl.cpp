@@ -56,10 +56,8 @@ static Window CreateAppWindow(const XVisualInfo *Visual, unsigned Width, unsigne
 //
 // CreateOpenGL
 //
-bool CreateOpenGL(unsigned Width, unsigned Height)
+bool CreateOpenGL(unsigned Width, unsigned Height, int MSAASamples)
 {
-    puts("Creating GLX...");
-
     g_pDisplay = XOpenDisplay(NULL);
     if (!g_pDisplay)
     {
@@ -102,10 +100,17 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
     Attribs.push_back(24);
     Attribs.push_back(GLX_STENCIL_SIZE);
     Attribs.push_back(8);
+    if (MSAASamples > 1)
+    {
+        puts("Requesting MSAA config...");
+        Attribs.push_back(GLX_SAMPLE_BUFFERS);
+        Attribs.push_back(1);
+        Attribs.push_back(GLX_SAMPLES);
+        Attribs.push_back(MSAASamples);
+    }
     Attribs.push_back(0);
 
-    puts("Choose visual...");
-    g_pVisual = glXChooseVisual(g_pDisplay, DefaultScreen(g_pDisplay), &Attribs[0] );
+    g_pVisual = glXChooseVisual(g_pDisplay, DefaultScreen(g_pDisplay), &Attribs[0]);
     if (!g_pVisual)
     {
         puts("No conforming visual exists.");
@@ -121,13 +126,18 @@ bool CreateOpenGL(unsigned Width, unsigned Height)
 
     g_Window = CreateAppWindow(g_pVisual, Width, Height);
 
-    printf("glXMakeCurrent(%p, %d, %p)\n", g_pDisplay, (unsigned)g_Window, g_Context);
     if (!glXMakeCurrent(g_pDisplay, g_Window, g_Context))
     {
         puts("Failed to make rendering context current.");
         return false;
     }
 
+    if (MSAASamples > 1)
+    {
+        glEnable(GL_MULTISAMPLE);
+    }
+
+    printf("\n");
     printf("GL_RENDERER: %s\n", (const char *)glGetString(GL_RENDERER));
     printf("GL_VERSION: %s\n", (const char *)glGetString(GL_VERSION));
     printf("GL_VENDOR: %s\n", (const char *)glGetString(GL_VENDOR));
