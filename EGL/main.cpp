@@ -21,7 +21,7 @@ void RunLoop()
     while (true)
     {
         // Render our scene
-        Render(g_FBWidth, g_FBHeight);
+        Render((unsigned)g_FBWidth, (unsigned)g_FBHeight);
     }
 }
 
@@ -31,15 +31,15 @@ void RunLoop()
 int main(int argc, char *argv[])
 {
     const char *optstring = "m:";
-    int opt = getopt(argc, argv, optstring);
     const char *m_arg = NULL;
+
+    int opt = getopt(argc, argv, optstring);
 
     while (opt != -1)
     {
         switch (opt)
         {
         case 'm':
-            // MSAA
             m_arg = optarg;
             break;
         }

@@ -134,8 +134,9 @@ void EventLoop()
 int main(int argc, char *argv[])
 {
     const char *optstring = "m:";
-    int opt = getopt(argc, argv, optstring);
     const char *m_arg = NULL;
+
+    int opt = getopt(argc, argv, optstring);
 
     while (opt != -1)
     {
