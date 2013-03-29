@@ -11,10 +11,10 @@ OBJS=main.o sdl.o utils.o fraps.o shader.o clear.o
 LIBS=-lSDL -lGLESv2
 LDFLAGS=-L$(PDK_PATH)/device/lib $(LIBS)
 
-all: clear-sdl-arm
+all: clear-sdl
 
-clear-sdl-arm: $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -o clear-sdl-arm
+clear-sdl: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o clear-sdl
     
 main.o: ../sdl/main.cpp
 	$(CC) $(CFLAGS) ../sdl/main.cpp
@@ -35,4 +35,4 @@ clear.o: clear.cpp
 	$(CC) $(CFLAGS) clear.cpp
     
 clean:
-	rm -rf *.o clear-sdl-arm
+	rm -rf *.o clear-sdl

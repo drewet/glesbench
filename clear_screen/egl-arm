@@ -14,10 +14,10 @@ OBJS=main.o egl.o utils.o fraps.o shader.o clear.o
 LIBS=-lEGL -lGLESv2 -lIMGegl -lsrv_um -lusc
 LDFLAGS=-L$(LIB_PATH) $(LIBS)
 
-all: clear-egl-arm
+all: clear-egl
 
-clear-egl-arm: $(OBJS)
-	$(CC) $(OBJS) $(LDFLAGS) -o clear-egl-arm
+clear-egl: $(OBJS)
+	$(CC) $(OBJS) $(LDFLAGS) -o clear-egl
     
 main.o: ../EGL/main.cpp
 	$(CC) $(CFLAGS) ../EGL/main.cpp
@@ -38,4 +38,4 @@ clear.o: clear.cpp
 	$(CC) $(CFLAGS) clear.cpp
     
 clean:
-	rm -rf *.o clear-egl-arm
+	rm -rf *.o clear-egl
