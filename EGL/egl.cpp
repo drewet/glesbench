@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include <vector>
+
 #include "../ogl_es.h"
 
 const char *StringifyEGLError(EGLint Error);
@@ -16,7 +18,7 @@ EGLContext          g_Context               = NULL;
 //
 // CreateOpenGL
 //
-bool CreateOpenGL(int *pWidth, int *pHeight)
+bool CreateOpenGL(int *pWidth, int *pHeight, int MSAASamples)
 {
     g_Display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (EGL_NO_DISPLAY == g_Display)
@@ -43,23 +45,38 @@ bool CreateOpenGL(int *pWidth, int *pHeight)
 
     printf("EGL version: %d.%d\n", MajorNumber, MinorNumber);
 
-    const EGLint Attribs[] =
+    std::vector<int> Attribs;
+
+    Attribs.push_back(EGL_RED_SIZE);
+    Attribs.push_back(8);
+    Attribs.push_back(EGL_GREEN_SIZE);
+    Attribs.push_back(8);
+    Attribs.push_back(EGL_BLUE_SIZE);
+    Attribs.push_back(8);
+    Attribs.push_back(EGL_ALPHA_SIZE);
+    Attribs.push_back(8);
+    Attribs.push_back(EGL_DEPTH_SIZE);
+    Attribs.push_back(24);
+    Attribs.push_back(EGL_STENCIL_SIZE);
+    Attribs.push_back(8);
+    Attribs.push_back(EGL_SURFACE_TYPE);
+    Attribs.push_back(EGL_WINDOW_BIT);
+    Attribs.push_back(EGL_RENDERABLE_TYPE);
+    Attribs.push_back(EGL_OPENGL_ES2_BIT);
+    if (MSAASamples > 1)
     {
-        EGL_RED_SIZE,               8,
-        EGL_GREEN_SIZE,             8,
-        EGL_BLUE_SIZE,              8,
-        EGL_ALPHA_SIZE,             8,
-        EGL_DEPTH_SIZE,             24,
-        EGL_STENCIL_SIZE,           8,
-        EGL_SURFACE_TYPE,           EGL_WINDOW_BIT,
-        EGL_RENDERABLE_TYPE,        EGL_OPENGL_ES2_BIT,
-        EGL_NONE
-    };
+        puts("Requesting MSAA config...");
+        Attribs.push_back(EGL_SAMPLE_BUFFERS);
+        Attribs.push_back(1);
+        Attribs.push_back(EGL_SAMPLES);
+        Attribs.push_back(MSAASamples);
+    }
+    Attribs.push_back(EGL_NONE);
 
     EGLConfig Config;
     EGLint NumConfigs = 0;
 
-    if (!eglChooseConfig(g_Display, Attribs, &Config, 1, &NumConfigs) || (0 == NumConfigs))
+    if (!eglChooseConfig(g_Display, &Attribs[0], &Config, 1, &NumConfigs) || (0 == NumConfigs))
     {
         puts("eglChooseConfig failed.");
         return false;
@@ -73,20 +90,6 @@ bool CreateOpenGL(int *pWidth, int *pHeight)
         puts("eglCreateWindowSurface() failed.");
         return false;
     }
-
-    EGLint Width = 0;
-    EGLint Height = 0;
-    EGLint HorizontalResolution = 0;
-    EGLint VerticalResolution = 0;
-
-    eglQuerySurface(g_Display, g_Surface, EGL_WIDTH, &Width);
-    eglQuerySurface(g_Display, g_Surface, EGL_HEIGHT, &Height);
-    eglQuerySurface(g_Display, g_Surface, EGL_VERTICAL_RESOLUTION, &VerticalResolution);
-    eglQuerySurface(g_Display, g_Surface, EGL_HORIZONTAL_RESOLUTION, &HorizontalResolution);
-
-    printf("Width: %d\nHeight: %d\nVRes: %d\nHRes: %d\n", Width, Height, VerticalResolution, HorizontalResolution);
-    *pWidth = Width;
-    *pHeight = Height;
 
     const EGLint ContextAttribs[] =
     {
@@ -108,10 +111,46 @@ bool CreateOpenGL(int *pWidth, int *pHeight)
         return false;
     }
 
+    EGLint Width = 0;
+    EGLint Height = 0;
+    EGLint HorizontalResolution = 0;
+    EGLint VerticalResolution = 0;
+    EGLint PixelAspectRatio = 0;
+    EGLint SwapBehavior = 0;
+    EGLint MultisampleResolve = 0;
+
+    eglQuerySurface(g_Display, g_Surface, EGL_WIDTH, &Width);
+    eglQuerySurface(g_Display, g_Surface, EGL_HEIGHT, &Height);
+    eglQuerySurface(g_Display, g_Surface, EGL_VERTICAL_RESOLUTION, &VerticalResolution);
+    eglQuerySurface(g_Display, g_Surface, EGL_HORIZONTAL_RESOLUTION, &HorizontalResolution);
+    eglQuerySurface(g_Display, g_Surface, EGL_PIXEL_ASPECT_RATIO, &PixelAspectRatio);
+    eglQuerySurface(g_Display, g_Surface, EGL_SWAP_BEHAVIOR, &SwapBehavior);
+    eglQuerySurface(g_Display, g_Surface, EGL_MULTISAMPLE_RESOLVE, &MultisampleResolve);
+
+    printf(
+        "EGL_WIDTH: %d\n"
+        "EGL_HEIGHT: %d\n"
+        "EGL_VERTICAL_RESOLUTION: %d\n"
+        "EGL_HORIZONTAL_RESOLUTION: %d\n"
+        "EGL_PIXEL_ASPECT_RATIO: %d\n"
+        "EGL_SWAP_BEHAVIOR: %s\n"
+        "EGL_MULTISAMPLE_RESOLVE: %s\n",
+        Width,
+        Height,
+        VerticalResolution,
+        HorizontalResolution,
+        PixelAspectRatio,
+        (EGL_BUFFER_PRESERVED==SwapBehavior) ? "EGL_BUFFER_PRESERVED" : "EGL_BUFFER_DESTROYED",
+        (EGL_MULTISAMPLE_RESOLVE_DEFAULT==MultisampleResolve) ? "EGL_MULTISAMPLE_RESOLVE_DEFAULT" : "EGL_MULTISAMPLE_RESOLVE_BOX");
+
+    printf("\n");
     printf("EGL_VENDOR: %s\n", eglQueryString(g_Display, EGL_VENDOR));
     printf("EGL_VERSION: %s\n", eglQueryString(g_Display, EGL_VERSION));
     PrintExtensions(eglQueryString(g_Display, EGL_EXTENSIONS));
     PrintExtensions((const char *)glGetString(GL_EXTENSIONS));
+
+    *pWidth = Width;
+    *pHeight = Height;
 
     return true;
 }
