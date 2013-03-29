@@ -1,0 +1,38 @@
+Here you can find latest versions of two OpenGL apps:
+
+1) Bunny (little benchmark itself);
+2) Clear (simple app that do nothing but clears framebuffer and shows FPS);
+
+The purpose of Bunny demo is to test workload of fragment shader: 
+5 point lights with phong shading applied to hi-poly model.
+I planned to use 8 point lights for pretty high workload, but seems that there is 
+limitation in mobile GPUs for this, so I limited shader to use 5 point lights.
+
+You can build the samples using make:
+
+make -f x11 - for desktop build
+make -f sdl-arm - for HP Touchpad
+make -f egl-arm - for LG TV
+
+For touchpad build PalmPDK should be installed.
+For TV you should correct paths in "egl-arm" makefile to goldinger usr directory and ARM compiler (I harcoded them for now).
+When building for multiple targets, do not forget to exec make -f <target> clean.
+
+Or you can use binaries from repo:
+
+bunny (x86)
+bunny-sdl (HPT)
+bunny-egl (TV)
+
+clear (x86)
+clear-sdl (HPT)
+clear-egl (TV)
+
+EGL version supports multisampling option (antialiazing).
+To enable it, run program with parameter -m <N>, where N is number of samples per pixel, e.g.:
+
+./bunny -m 4
+
+Seems that TV supports 2, 4 and 8 MSAA modes.
+
+
