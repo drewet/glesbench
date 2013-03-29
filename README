@@ -28,6 +28,8 @@ clear (x86)
 clear-sdl (HPT)
 clear-egl (TV)
 
+When run on TV, be sure that Starfish image has at least libGLESv2.so, libEGL.so and libIMGegl.so.
+
 EGL version supports multisampling option (antialiazing).
 To enable it, run program with parameter -m <N>, where N is number of samples per pixel, e.g.:
 
