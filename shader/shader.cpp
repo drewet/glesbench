@@ -48,7 +48,7 @@ GLuint LoadGLSLShader(GLenum Target, const GLchar *pSource)
         else
         {
             puts(pSource);
-            puts("(Compilation log is empty)");
+            puts("Shader info log is empty");
         }
 
         glDeleteShader(Shader);
@@ -136,7 +136,7 @@ bool LinkGLSLProgram(GLuint Program)
         }
         else
         {
-            puts("Link log is empty");
+            puts("Program info log is empty");
         }
 
         return false;
