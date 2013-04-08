@@ -1,6 +1,7 @@
 #include "fraps.h"
 #include "font.h"
 #include "../shader/shader.h"
+#include "../chart/chart.h"
 
 enum
 {
@@ -12,9 +13,6 @@ enum
 
     FRAPS_TEXTURE_BYTEWIDTH = FRAPS_GLYPH_WIDTH * 10 * FRAPS_GLYPH_HEIGHT * sizeof(BYTE) * 4
 };
-
-#define ATTRIB_OFFSET(n) \
-    (GLvoid *)((char *)NULL + (n))
 
 //
 // CFraps
@@ -164,7 +162,7 @@ CFraps::~CFraps()
 //
 // OnPresent
 //
-void CFraps::OnPresent()
+void CFraps::OnPresent(CChart *pChart /* = NULL */)
 {
     float ElapsedTime = 0.0f;
 
@@ -194,6 +192,9 @@ void CFraps::OnPresent()
         m_Prev = m_Curr;
         m_ElapsedTime = 0;
         m_NumFrames = 0;
+
+        if (pChart)
+            pChart->AddValue((float)m_fps);
     }
 }
 

@@ -11,6 +11,8 @@
 
 #include <sys/timeb.h>
 
+class CChart;
+
 struct FRAPS_VERTEX
 {
     XMFLOAT2 Pos;
@@ -25,7 +27,7 @@ public:
     CFraps();
     ~CFraps();
 
-    void OnPresent();
+    void OnPresent(CChart *pChart = NULL);
     void Draw(unsigned Width, unsigned Height);
 
 private:
