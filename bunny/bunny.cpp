@@ -15,6 +15,7 @@
 #include "fsh.h"
 #include "../shader/shader.h"
 #include "../fraps/fraps.h"
+#include "../chart/chart.h"
 
 namespace bunny {
 #include "models/bunny.h"
@@ -32,8 +33,8 @@ void BeginFrame();
 void EndFrame();
 float GetElapsedMilliseconds();
 
-#define ATTRIB_OFFSET(n) \
-	(GLvoid *)((char *)NULL + (n))
+#define SAFE_DELETE(p) \
+    if (p) {delete p; p = NULL;}
 
 enum
 {
@@ -93,6 +94,7 @@ PHONG_UNIFORMS          g_PhongUniforms;
 float                   g_ElapsedTime = 0.0f;
 POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
 CFraps*                 g_pFraps;
+CChart*                 g_pChart;
 
 float                   g_Distance = -2.7f;
 float                   g_SpinX;
@@ -354,6 +356,8 @@ bool Initialize()
     glCullFace(GL_BACK);
 
     g_pFraps = new CFraps();
+    g_pChart = new CChart();
+    g_pChart->AddValue(0.0f);
 
     return true;
 }
@@ -363,7 +367,8 @@ bool Initialize()
 //
 void Cleanup()
 {
-    delete g_pFraps;
+    SAFE_DELETE(g_pChart);
+    SAFE_DELETE(g_pFraps);
 
     glDeleteProgram(g_PhongProgram);
     glDeleteProgram(g_WvpAndColorProgram);
@@ -616,8 +621,9 @@ void Render(unsigned Width, unsigned Height)
     DrawLights();
 
     g_pFraps->Draw(Width, Height);
+    g_pChart->Draw(Width, Height);
 
     EndFrame();
 
-    g_pFraps->OnPresent();
+    g_pFraps->OnPresent(g_pChart);
 }
