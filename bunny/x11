@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -g
-OBJS=main.o xgl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
+OBJS=main.o xgl.o utils.o gccxnamath.o fraps.o chart.o shader.o bunny.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
 
@@ -23,6 +23,9 @@ gccxnamath.o: ../xna/gccxnamath.cpp
 	
 fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
 	$(CC) $(CFLAGS) ../fraps/fraps.cpp
+	
+chart.o: ../chart/chart.cpp ../chart/chart.h
+	$(CC) $(CFLAGS) ../chart/chart.cpp
 	
 shader.o: ../shader/shader.cpp ../shader/shader.h
 	$(CC) $(CFLAGS) ../shader/shader.cpp
