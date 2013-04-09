@@ -64,28 +64,27 @@ CFraps::CFraps():
         delete[] pData;
     }
 
+#ifdef GL_ES
+    GLenum InternalFormat = GL_RGBA;
+    GLenum Format = GL_RGBA;
+#else
+    GLenum InternalFormat = GL_RGBA8;
+    GLenum Format = GL_BGRA;
+#endif
+
     glGenTextures(1, &m_Texture);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-#ifdef GL_ES
-    GLenum InternalFormat = GL_RGBA;
-    GLenum TexelFormat = GL_RGBA;
-#else
-    GLenum InternalFormat = GL_RGBA8;
-    GLenum TexelFormat = GL_BGRA;
-#endif
-
     glTexImage2D(GL_TEXTURE_2D,
         0, // Level
         InternalFormat,
         FRAPS_GLYPH_WIDTH * 10,
         FRAPS_GLYPH_HEIGHT,
         0, // Border
-        TexelFormat,
+        Format,
         GL_UNSIGNED_BYTE,
         g_FRAPSFont);
 
