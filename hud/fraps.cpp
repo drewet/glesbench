@@ -29,7 +29,6 @@ CFraps::CFraps():
     m_NumFrames(0),
     m_fps(0)
 {
-    puts("CFraps::CFraps");
     ftime(&m_Prev);
     ftime(&m_Curr);
 
