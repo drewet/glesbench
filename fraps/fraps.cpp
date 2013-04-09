@@ -194,7 +194,7 @@ void CFraps::OnPresent(CChart *pChart /* = NULL */)
         m_NumFrames = 0;
 
         if (pChart)
-            pChart->AddValue((float)m_fps);
+            pChart->AddFpsValue((float)m_fps);
     }
 }
 

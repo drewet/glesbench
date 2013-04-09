@@ -357,7 +357,7 @@ bool Initialize()
 
     g_pFraps = new CFraps();
     g_pChart = new CChart();
-    g_pChart->AddValue(0.0f);
+    g_pChart->AddFpsValue(0.0f);
 
     return true;
 }
