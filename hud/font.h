@@ -31,9 +31,14 @@ public:
     CFont(const char *pFileName);
     ~CFont();
 
-    void DrawString(const char *pFmt, ...);
+    void SetScreenSize(unsigned Width, unsigned Height);
+    void DrawString(int x, int y, const char *pFmt, ...);
 
 private:
+    void BeginDraw();
+    void EndDraw();
+    void AddGlyph(FONT_VERTEX v[4], float x, float y, float w, float h, float u1, float v1, float u2, float v2);
+
     bool LoadTGA(FILE *pFile, TARGA_IMAGE *pImage) const;
 
     GLuint m_VB;
@@ -42,6 +47,8 @@ private:
     GLuint m_Program;
     GLint m_Mproj;
     GLint m_Tex;
+
+    XMMATRIX m_Ortho;
 };
 
 #endif // __FONT_H__
