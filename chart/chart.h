@@ -18,7 +18,10 @@ struct CHART_VERTEX
 enum
 {
     CHART_MIN_Y_COORD = 10,
-    CHART_MAX_Y_COORD = 60
+    CHART_MAX_Y_COORD = 60,
+    CHART_MIN_FPS = 40,
+    CHART_MAX_FPS = 100,
+    CHART_X_STEP = 10
 };
 
 // Simple chart drawing
@@ -29,7 +32,7 @@ public:
     CChart();
     ~CChart();
 
-    void AddValue(float Value);
+    void AddFpsValue(float Value);
     void Draw(unsigned Width, unsigned Height);
 
 private:
@@ -44,12 +47,10 @@ private:
     GLint m_Color;
 
     float m_xOffset;
-    XMMATRIX m_World;
     XMMATRIX m_Ortho;
 
     GLuint m_NumValues;
     GLuint m_FirstValue;
-
 };
 
 #endif // __CHART_H__
