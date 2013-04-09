@@ -1,7 +1,7 @@
 #include "fraps.h"
-#include "font.h"
+#include "fraps_font.h"
+#include "chart.h"
 #include "../shader/shader.h"
-#include "../chart/chart.h"
 
 enum
 {

@@ -14,8 +14,9 @@
 #include "vsh.h"
 #include "fsh.h"
 #include "../shader/shader.h"
-#include "../fraps/fraps.h"
-#include "../chart/chart.h"
+#include "../hud/fraps.h"
+#include "../hud/chart.h"
+#include "../hud/font.h"
 
 namespace bunny {
 #include "models/bunny.h"

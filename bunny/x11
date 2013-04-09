@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -g
-OBJS=main.o xgl.o utils.o gccxnamath.o fraps.o chart.o shader.o bunny.o
+OBJS=bunny.o main.o xgl.o gccxnamath.o fraps.o chart.o font.o shader.o utils.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
 
@@ -9,29 +9,31 @@ all: bunny
 bunny: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o bunny
     
+bunny.o: bunny.cpp vsh.h fsh.h
+	$(CC) $(CFLAGS) bunny.cpp
+
 main.o: ../X11/main.cpp
 	$(CC) $(CFLAGS) ../X11/main.cpp
 	
 xgl.o: ../X11/xgl.cpp
 	$(CC) $(CFLAGS) ../X11/xgl.cpp
 	
-utils.o: ../utils.cpp
-	$(CC) $(CFLAGS) ../utils.cpp
-	
 gccxnamath.o: ../xna/gccxnamath.cpp
 	$(CC) $(CFLAGS) ../xna/gccxnamath.cpp
 	
-fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
-	$(CC) $(CFLAGS) ../fraps/fraps.cpp
+fraps.o: ../hud/fraps.cpp ../hud/fraps.h
+	$(CC) $(CFLAGS) ../hud/fraps.cpp
 	
-chart.o: ../chart/chart.cpp ../chart/chart.h
-	$(CC) $(CFLAGS) ../chart/chart.cpp
+chart.o: ../hud/chart.cpp ../hud/chart.h
+	$(CC) $(CFLAGS) ../hud/chart.cpp
+
+font.o: ../hud/font.cpp ../hud/font.h
+	$(CC) $(CFLAGS) ../hud/font.cpp
 	
 shader.o: ../shader/shader.cpp ../shader/shader.h
 	$(CC) $(CFLAGS) ../shader/shader.cpp
-	
-bunny.o: bunny.cpp vsh.h fsh.h
-	$(CC) $(CFLAGS) bunny.cpp
     
+utils.o: ../utils.cpp
+	$(CC) $(CFLAGS) ../utils.cpp
 clean:
 	rm -rf *.o bunny
