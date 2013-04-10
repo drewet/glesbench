@@ -16,7 +16,7 @@
 #include "../shader/shader.h"
 #include "../hud/fraps.h"
 #include "../hud/chart.h"
-#include "../hud/font.h"
+#include "../hud/bff.h"
 
 namespace bunny {
 #include "models/bunny.h"
@@ -94,8 +94,11 @@ PHONG_UNIFORMS          g_PhongUniforms;
 
 float                   g_ElapsedTime = 0.0f;
 POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
+
 CFraps*                 g_pFraps;
 CChart*                 g_pChart;
+//CFont*                  g_pFont;
+CBffFont*               g_pFont;
 
 float                   g_Distance = -2.7f;
 float                   g_SpinX;
@@ -358,6 +361,8 @@ bool Initialize()
 
     g_pFraps = new CFraps();
     g_pChart = new CChart();
+    g_pFont = new CBffFont("fixedsys.bff");
+
     g_pChart->AddFpsValue(0.0f);
 
     return true;
@@ -368,6 +373,7 @@ bool Initialize()
 //
 void Cleanup()
 {
+    SAFE_DELETE(g_pFont);
     SAFE_DELETE(g_pChart);
     SAFE_DELETE(g_pFraps);
 
@@ -600,7 +606,8 @@ void Render(unsigned Width, unsigned Height)
     BeginFrame();
 
     glViewport(0, 0, Width, Height);
-    glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
+    //glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     g_View = XMMatrixTranslation(0.0f, 0.0f, g_Distance);
@@ -621,8 +628,10 @@ void Render(unsigned Width, unsigned Height)
     //DrawKnots();
     DrawLights();
 
-    g_pFraps->Draw(Width, Height);
-    g_pChart->Draw(Width, Height);
+    g_pFraps->SetScreenSize(Width, Height);
+    g_pFraps->Draw();
+    //g_pChart->Draw(Width, Height);
+    //g_pFont->SetScreenSize(Width, Height);
 
     EndFrame();
 
