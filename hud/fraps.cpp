@@ -1,7 +1,7 @@
 #include "fraps.h"
 #include "fraps_font.h"
 #include "chart.h"
-#include "../shader/shader.h"
+//#include "../shader/shader.h"
 
 enum
 {
@@ -18,12 +18,7 @@ enum
 // CFraps
 //
 CFraps::CFraps():
-    m_VB(0),
-    m_IB(0),
-    m_Texture(0),
-    m_Program(0),
-    m_Mproj(0),
-    m_Tex(0),
+    CHudBase(FRAPS_MAX_STRING, false),
     m_bFirstPresent(true),
     m_ElapsedTime(0.0f),
     m_NumFrames(0),
@@ -31,37 +26,6 @@ CFraps::CFraps():
 {
     ftime(&m_Prev);
     ftime(&m_Curr);
-
-    glGenBuffers(1, &m_VB);
-    glBindBuffer(GL_ARRAY_BUFFER, m_VB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(FRAPS_VERTEX) * 4 * FRAPS_MAX_STRING, NULL, GL_DYNAMIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &m_IB);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
-    GLushort *pData = new GLushort[6 * FRAPS_MAX_STRING];
-    GLushort *pIndices = pData;
-    if (pIndices)
-    {
-        // CCW order
-        // 2|\  |3
-        //  | \ |
-        // 0|  \|1
-        const GLushort GlyphIndices[6] = {0, 1, 2, 2, 1, 3};
-        GLushort StartIndex = 0;
-
-        for (int i = 0; i < FRAPS_MAX_STRING; ++i)
-        {
-            for (int j = 0; j < 6; ++j)
-                pIndices[j] = StartIndex + GlyphIndices[j];
-            pIndices += 6;
-            StartIndex += 4;
-        }
-
-        glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(GLushort) * 6 * FRAPS_MAX_STRING, pData, GL_STATIC_DRAW);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-        delete[] pData;
-    }
 
 #ifdef GL_ES
     GLenum InternalFormat = GL_RGBA;
@@ -86,64 +50,6 @@ CFraps::CFraps():
         Format,
         GL_UNSIGNED_BYTE,
         g_FRAPSFont);
-
-    const GLchar *pVsh =
-    "uniform mat4       Mproj;\n"
-    "\n"
-    "attribute vec2     position;\n"
-    "attribute vec2     texcoord;\n"
-    "\n"
-    "varying vec2       oTexcoord;\n"
-    "void main()\n"
-    "{\n"
-    "    gl_Position = Mproj * vec4(position, 0., 1.);\n"
-    "    oTexcoord = texcoord;\n"
-    "}\n";
-
-    GLuint vsh = LoadGLSLShader(GL_VERTEX_SHADER, pVsh);
-    if (0 == vsh)
-        return;
-
-    const GLchar *pFsh =
-    #ifdef GL_ES
-    "precision mediump float;\n"
-    #endif
-    "uniform sampler2D  font;\n"
-    "\n"
-    "varying vec2       oTexcoord;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    vec4 color = texture2D(font, oTexcoord);\n"
-    "    if (color.a < 1.0)\n"
-    "        discard;\n"
-    #ifdef GL_ES
-    "    gl_FragColor = vec4(color.bgr, 1.);\n" // There is no GL_BGRA format in OpenGL ES
-    #else
-    "    gl_FragColor = vec4(color.rgb, 1.);\n"
-    #endif
-    "}\n";
-
-    GLuint fsh = LoadGLSLShader(GL_FRAGMENT_SHADER, pFsh);
-    if (0 == fsh)
-        return;
-
-    m_Program = glCreateProgram();
-    glAttachShader(m_Program, vsh);
-    glAttachShader(m_Program, fsh);
-    glBindAttribLocation(m_Program, 0, "position");
-    glBindAttribLocation(m_Program, 1, "texcoord");
-    GLboolean bLinked = LinkGLSLProgram(m_Program);
-    glDeleteShader(fsh);
-    glDeleteShader(vsh);
-    if (!bLinked)
-    {
-        glDeleteProgram(m_Program);
-        return;
-    }
-
-    m_Mproj = GetUniformLocation(m_Program, "Mproj");
-    m_Tex = GetUniformLocation(m_Program, "font");
 }
 
 //
@@ -151,10 +57,6 @@ CFraps::CFraps():
 //
 CFraps::~CFraps()
 {
-    glDeleteProgram(m_Program);
-    glDeleteTextures(1, &m_Texture);
-    glDeleteBuffers(1, &m_IB);
-    glDeleteBuffers(1, &m_VB);
 }
 
 //
@@ -199,14 +101,17 @@ void CFraps::OnPresent(CChart *pChart /* = NULL */)
 //
 // Draw
 //
-void CFraps::Draw(unsigned Width, unsigned Height)
+void CFraps::Draw()
 {
-    unsigned NumGlyphs = 0;
-    int x = Width - (FRAPS_GLYPH_WIDTH + 2);
-    int y = Height - (FRAPS_GLYPH_HEIGHT + 2);
+    assert(m_Width);
+    assert(m_Height);
 
-    FRAPS_VERTEX *pData = new FRAPS_VERTEX[4 * FRAPS_MAX_STRING];
-    FRAPS_VERTEX *pVertices = pData;
+    unsigned NumGlyphs = 0;
+    int x = m_Width - (FRAPS_GLYPH_WIDTH + 2);
+    int y = m_Height - (FRAPS_GLYPH_HEIGHT + 2);
+
+    HUD_VERTEX *pData = new HUD_VERTEX[4 * FRAPS_MAX_STRING];
+    HUD_VERTEX *pVertices = pData;
 
     if (pVertices)
     {
@@ -229,16 +134,9 @@ void CFraps::Draw(unsigned Width, unsigned Height)
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, m_VB);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(FRAPS_VERTEX) * 4 * NumGlyphs, pData);
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(HUD_VERTEX) * 4 * NumGlyphs, pData);
         delete[] pData;
     }
-
-    m_Ortho = XMMatrixOrthographicOffCenterRH(
-        0.0f,           // Left
-        (float)Width,   // Right
-        0.0f,           // Bottom
-        (float)Height,  // Top
-        -1.0f, 1.0f);
 
     BeginDraw();
     {
@@ -252,23 +150,7 @@ void CFraps::Draw(unsigned Width, unsigned Height)
 //
 void CFraps::BeginDraw()
 {
-    glDisable(GL_DEPTH_TEST);
-
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, m_Texture);
-
-    GLsizei Stride = sizeof(FRAPS_VERTEX);
-
-    // Vertices
-    glBindBuffer(GL_ARRAY_BUFFER, m_VB);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0));
-    glEnableVertexAttribArray(0);
-    // TexCoords
-    glBindBuffer(GL_ARRAY_BUFFER, m_VB);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(sizeof(GL_FLOAT) * 2));
-    glEnableVertexAttribArray(1);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
+    CHudBase::BeginDraw();
 
     glUseProgram(m_Program);
     glUniformMatrix4fv(m_Mproj, 1, GL_FALSE, (const GLfloat *)&m_Ortho);
@@ -280,32 +162,5 @@ void CFraps::BeginDraw()
 //
 void CFraps::EndDraw()
 {
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
-//
-// AddGlyph
-//
-void CFraps::AddGlyph(FRAPS_VERTEX v[4], float x, float y, float w, float h, float u1, float v1, float u2, float v2)
-{
-    // CCW order
-    // 2|\  |3
-    //  | \ |
-    // 0|  \|1
-    v[0].Pos = XMFLOAT2(x, y);
-    v[0].Tex = XMFLOAT2(u1, v1);
-    v[1].Pos = XMFLOAT2(x + w, y);
-    v[1].Tex = XMFLOAT2(u2, v1);
-    v[2].Pos = XMFLOAT2(x, y + h);
-    v[2].Tex = XMFLOAT2(u1, v2);
-    v[3].Pos = XMFLOAT2(x + w, y + h);
-    v[3].Tex = XMFLOAT2(u2, v2);
+    CHudBase::EndDraw();
 }
