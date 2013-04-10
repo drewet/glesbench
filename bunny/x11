@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -g
-OBJS=bunny.o main.o xgl.o gccxnamath.o fraps.o chart.o font.o shader.o utils.o
+OBJS=bunny.o main.o xgl.o gccxnamath.o hud_base.o fraps.o chart.o bff.o shader.o utils.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
 
@@ -21,14 +21,17 @@ xgl.o: ../X11/xgl.cpp
 gccxnamath.o: ../xna/gccxnamath.cpp
 	$(CC) $(CFLAGS) ../xna/gccxnamath.cpp
 	
+hud_base.o: ../hud/hud_base.cpp ../hud/hud_base.h
+	$(CC) $(CFLAGS) ../hud/hud_base.cpp
+
 fraps.o: ../hud/fraps.cpp ../hud/fraps.h
 	$(CC) $(CFLAGS) ../hud/fraps.cpp
 	
 chart.o: ../hud/chart.cpp ../hud/chart.h
 	$(CC) $(CFLAGS) ../hud/chart.cpp
 
-font.o: ../hud/font.cpp ../hud/font.h
-	$(CC) $(CFLAGS) ../hud/font.cpp
+bff.o: ../hud/bff.cpp ../hud/bff.h
+	$(CC) $(CFLAGS) ../hud/bff.cpp
 	
 shader.o: ../shader/shader.cpp ../shader/shader.h
 	$(CC) $(CFLAGS) ../shader/shader.cpp
