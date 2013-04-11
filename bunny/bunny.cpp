@@ -95,6 +95,7 @@ float                   g_ElapsedTime = 0.0f;
 POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
 
 CBffFont*               g_pFont;
+CBffFont*               g_pTitleFont;
 CFraps*                 g_pFraps;
 //CChart*                 g_pChart;
 
@@ -353,9 +354,9 @@ bool Initialize()
     glCullFace(GL_BACK);
 
     g_pFont = new CBffFont("fixedsys.bff");
+    g_pTitleFont = new CBffFont("arial_narrow.bff");
+    g_pTitleFont->SetScale(0.8f);
     g_pFraps = new CFraps();
-    //g_pChart = new CChart();
-    //g_pChart->AddFpsValue(0.0f);
 
     return true;
 }
@@ -367,6 +368,7 @@ void Cleanup()
 {
     //SAFE_DELETE(g_pChart);
     SAFE_DELETE(g_pFraps);
+    SAFE_DELETE(g_pTitleFont);
     SAFE_DELETE(g_pFont);
 
     glDeleteProgram(g_PhongProgram);
@@ -598,15 +600,9 @@ void DrawLights()
 //
 void DrawHUD(unsigned Width, unsigned Height)
 {
-#ifdef USE_EGL
-    extern EGLDisplay g_Display;
-#endif
-    extern GLuint g_MSAASamples;
-
     g_pFraps->SetScreenSize(Width, Height);
-    g_pFraps->Draw();
-
     g_pFont->SetScreenSize(Width, Height);
+    g_pTitleFont->SetScreenSize(Width, Height);
 
     static const char *pRenderer = NULL;
     static const char *pVendor = NULL;
@@ -620,6 +616,7 @@ void DrawHUD(unsigned Width, unsigned Height)
         pVendor = (const char *)glGetString(GL_VENDOR);
         pVersion = (const char *)glGetString(GL_VERSION);
 #ifdef USE_EGL
+        extern EGLDisplay g_Display;
         pEGLVersion = eglQueryString(g_Display, EGL_VERSION);
 #endif
     }
@@ -639,6 +636,8 @@ void DrawHUD(unsigned Width, unsigned Height)
 #endif
     y -= 60;
 
+    extern GLuint g_MSAASamples;
+
     g_pFont->SetColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
     g_pFont->DrawString(x, y, "FRAMEBUFFER RESOLUTION: %d x %d", Width, Height);
     y -= 20;
@@ -656,8 +655,13 @@ void DrawHUD(unsigned Width, unsigned Height)
     g_pFont->DrawString(x, y, "POINT LIGHTS: %d", g_LightCount);
     y -= 20;
 
-    g_pFont->SetColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
-    g_pFont->DrawString(Width - 190, 0, "OPENGL ES 2.0 BENCHMARK");
+    const char *pTitleString = "OPENGL ES 2.0 BENCHMARK";
+
+    g_pTitleFont->SetColor(XMFLOAT3(1.0f, 1.0f, 0.0f));
+    float w = g_pTitleFont->CalcStringWidth(pTitleString);
+    g_pTitleFont->DrawString((int)((Width - w) / 2.0f), 0, pTitleString);
+
+    g_pFraps->Draw();
 }
 
 //
