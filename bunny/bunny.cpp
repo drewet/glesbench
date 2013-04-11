@@ -620,7 +620,7 @@ void DrawHUD(unsigned Width, unsigned Height)
 #endif // !USE_EGL
 
     int x = 10;
-    int y = Height - 20;
+    int y = Height - 25;
 
     g_pFont->DrawString(x, y, "RENDERER: %s", pRenderer);
     y -= 20;
