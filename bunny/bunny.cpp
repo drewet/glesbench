@@ -597,6 +597,44 @@ void DrawLights()
 }
 
 //
+// DrawHUD
+//
+void DrawHUD(unsigned Width, unsigned Height)
+{
+    g_pFraps->SetScreenSize(Width, Height);
+    g_pFraps->Draw();
+
+    g_pFont->SetScreenSize(Width, Height);
+
+    const char *pRenderer;
+    const char *pVendor;
+    const char *pVersion;
+
+    pRenderer = (const char *)glGetString(GL_RENDERER);
+#ifdef USE_EGL
+    pVendor = eglQueryString(g_Display, EGL_VENDOR);
+    pVersion = eglQueryString(g_Display, EGL_VERSION);
+#else
+    pVendor = (const char *)glGetString(GL_VENDOR);
+    pVersion = (const char *)glGetString(GL_VERSION);
+#endif // !USE_EGL
+
+    int x = 10;
+    int y = Height - 20;
+
+    g_pFont->DrawString(x, y, "RENDERER: %s", pRenderer);
+    y -= 20;
+    g_pFont->DrawString(x, y, "VENDOR: %s", pVendor);
+    y -= 20;
+    g_pFont->DrawString(x, y, "VERSION: %s", pVersion);
+    y -= 40;
+    g_pFont->DrawString(x, y, "FRAMEBUFFER RESOLUTION: %d x %d", Width, Height);
+    y -= 20;
+
+    //g_pChart->Draw(Width, Height);
+}
+
+//
 // Render
 //
 void Render(unsigned Width, unsigned Height)
@@ -606,8 +644,7 @@ void Render(unsigned Width, unsigned Height)
     BeginFrame();
 
     glViewport(0, 0, Width, Height);
-    //glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
-    glClearColor(0.0f, 0.0f, 0.25f, 1.0f);
+    glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     g_View = XMMatrixTranslation(0.0f, 0.0f, g_Distance);
@@ -625,13 +662,8 @@ void Render(unsigned Width, unsigned Height)
     }
 
     DrawBunny();
-    //DrawKnots();
     DrawLights();
-
-    g_pFraps->SetScreenSize(Width, Height);
-    g_pFraps->Draw();
-    //g_pChart->Draw(Width, Height);
-    //g_pFont->SetScreenSize(Width, Height);
+    DrawHUD(Width, Height);
 
     EndFrame();
 
