@@ -15,6 +15,8 @@ EGLDisplay          g_Display               = NULL;
 EGLSurface          g_Surface               = NULL;
 EGLContext          g_Context               = NULL;
 
+GLuint              g_MSAASamples           = 0;
+
 //
 // CreateOpenGL
 //
@@ -152,6 +154,9 @@ bool CreateOpenGL(int *pWidth, int *pHeight, int MSAASamples)
     *pWidth = Width;
     *pHeight = Height;
 
+    // Store for HUD
+    g_MSAASamples = MSAASamples;
+
     return true;
 }
 
@@ -171,7 +176,8 @@ void DestroyOpenGL()
 //
 void BeginFrame()
 {
-    eglMakeCurrent(g_Display, g_Surface, g_Surface, g_Context);
+    // Expensive, called once in CreateOpenGL().
+    //eglMakeCurrent(g_Display, g_Surface, g_Surface, g_Context);
 }
 
 //

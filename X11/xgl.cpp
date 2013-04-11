@@ -20,6 +20,8 @@ GLXContext          g_Context               = 0;
 //GLXFBConfig*        g_pFBConfig             = NULL;      // GLX 1.3
 //GLXWindow           g_Drawable              = 0;         // GLX 1.3
 
+GLuint              g_MSAASamples           = 0;
+
 //
 // CreateAppWindow
 //
@@ -143,6 +145,9 @@ bool CreateOpenGL(unsigned Width, unsigned Height, int MSAASamples)
     printf("GL_VENDOR: %s\n", (const char *)glGetString(GL_VENDOR));
     PrintExtensions((const char *)glGetString(GL_EXTENSIONS));
 
+    // Store for HUD
+    g_MSAASamples = MSAASamples;
+
     return true;
 }
 
@@ -168,7 +173,8 @@ void DestroyOpenGL()
 //
 void BeginFrame()
 {
-    glXMakeCurrent(g_pDisplay, g_Window, g_Context);
+    // Expensive, called once in CreateOpenGL().
+    //glXMakeCurrent(g_pDisplay, g_Window, g_Context);
 }
 
 //
@@ -177,9 +183,4 @@ void BeginFrame()
 void EndFrame()
 {
     glXSwapBuffers(g_pDisplay, g_Window);
-
-    static unsigned Count = 0;
-
-    if (++Count % 200 == 0)
-        printf("Heartbeat : %d frames passed...\n", Count);
 }

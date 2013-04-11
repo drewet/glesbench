@@ -594,23 +594,32 @@ void DrawLights()
 //
 void DrawHUD(unsigned Width, unsigned Height)
 {
+#ifdef USE_EGL
+    extern EGLDisplay g_Display;
+#endif
+    extern GLuint g_MSAASamples;
+
     g_pFraps->SetScreenSize(Width, Height);
     g_pFraps->Draw();
 
     g_pFont->SetScreenSize(Width, Height);
 
-    const char *pRenderer;
-    const char *pVendor;
-    const char *pVersion;
+    static const char *pRenderer = NULL;
+    static const char *pVendor = NULL;
+    static const char *pVersion = NULL;
 
-    pRenderer = (const char *)glGetString(GL_RENDERER);
-#ifdef USE_EGL
-    pVendor = eglQueryString(g_Display, EGL_VENDOR);
-    pVersion = eglQueryString(g_Display, EGL_VERSION);
-#else
-    pVendor = (const char *)glGetString(GL_VENDOR);
-    pVersion = (const char *)glGetString(GL_VERSION);
-#endif // !USE_EGL
+    if (!pRenderer)
+    {
+        // Call different glGet*() only once
+        pRenderer = (const char *)glGetString(GL_RENDERER);
+    #ifdef USE_EGL
+        pVendor = eglQueryString(g_Display, EGL_VENDOR);
+        pVersion = eglQueryString(g_Display, EGL_VERSION);
+    #else
+        pVendor = (const char *)glGetString(GL_VENDOR);
+        pVersion = (const char *)glGetString(GL_VERSION);
+    #endif // !USE_EGL
+    }
 
     int x = 10;
     int y = Height - 25;
@@ -622,17 +631,22 @@ void DrawHUD(unsigned Width, unsigned Height)
     y -= 20;
     g_pFont->DrawString(x, y, "VERSION: %s", pVersion);
     y -= 60;
+
     g_pFont->SetColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
     g_pFont->DrawString(x, y, "FRAMEBUFFER RESOLUTION: %d x %d", Width, Height);
+    y -= 20;
+    g_pFont->DrawString(x, y, "MSAA LEVEL: %d", g_MSAASamples);
     y -= 60;
 
     unsigned VertexCount = sizeof(bunny::g_Vertices) / sizeof(bunny::g_Vertices[0]);
     unsigned PolyCount = sizeof(bunny::g_Indices) / sizeof(bunny::g_Indices[0]) / 3;
 
-    g_pFont->SetColor(XMFLOAT3(1.0f, 0.0f, 0.0f));
+    g_pFont->SetColor(XMFLOAT3(0.0f, 1.0f, 0.0f));
     g_pFont->DrawString(x, y, "VERTEX COUNT: %d", VertexCount);
     y -= 20;
     g_pFont->DrawString(x, y, "POLYGON COUNT: %d", PolyCount);
+    y -= 20;
+    g_pFont->DrawString(x, y, "POINT LIGHTS: %d", MAX_POINT_LIGHTS);
     y -= 20;
 
     //g_pChart->Draw(Width, Height);
