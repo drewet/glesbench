@@ -650,7 +650,7 @@ void DrawHUD(unsigned Width, unsigned Height)
     g_pFont->DrawString(x, y, "POINT LIGHTS: %d", MAX_POINT_LIGHTS);
     y -= 20;
 
-    g_pFont->SetColor(XMFLOAT3(0.0f, 0.0f, 0.0f));
+    g_pFont->SetColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
     g_pFont->DrawString(Width - 190, 0, "OPENGL ES 2.0 BENCHMARK");
 }
 
