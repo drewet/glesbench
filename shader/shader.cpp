@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include "shader.h"
 
@@ -154,7 +153,6 @@ GLint GetUniformLocation(GLuint Program, const GLchar *pName)
 
     if (-1 == Uniform)
         printf("Failed to retrieve uniform \"%s\"\n", pName);
-    //assert(Uniform != -1);
 
     return Uniform;
 }
