@@ -2,6 +2,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include <memory.h>
 
 #include <fstream>
@@ -55,20 +56,27 @@ CBffFont::~CBffFont()
 //
 // DrawString
 //
-void CBffFont::DrawString(int x, int y, const char *pFmt, ...)
+void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
 {
+    char s[MAX_STRING_LENGTH];
+    va_list val;
+
+    // Compose string
+    va_start(val, pFormat);
+    vsnprintf(s, MAX_STRING_LENGTH, pFormat, val);
+    va_end(val);
+
+    static HUD_VERTEX Data[4 * MAX_STRING_LENGTH];
+    HUD_VERTEX *pVertices = Data;
     unsigned NumGlyphs = 0;
-    HUD_VERTEX *pData = new HUD_VERTEX[4 * MAX_STRING_LENGTH];
-    HUD_VERTEX *pVertices = pData;
 
     if (pVertices)
     {
-        size_t Length = strlen(pFmt);
+        const int n = (int)strlen(s);
 
-        for (int i = 0; i < (int)Length; ++i)
+        for (int i = 0; i < n; ++i)
         {
-            unsigned chr = pFmt[i];
-
+            char chr = s[i];
             int Row = (chr - Base) / RowPitch;
             int Col = (chr - Base) - Row * RowPitch;
 
@@ -86,8 +94,7 @@ void CBffFont::DrawString(int x, int y, const char *pFmt, ...)
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, m_VB);
-        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(HUD_VERTEX) * 4 * NumGlyphs, pData);
-        delete[] pData;
+        glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(HUD_VERTEX) * 4 * NumGlyphs, Data);
     }
 
     BeginDraw();
