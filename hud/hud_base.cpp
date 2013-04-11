@@ -180,6 +180,9 @@ void CHudBase::BeginDraw()
     glEnableVertexAttribArray(1);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
+
+    glUseProgram(m_Program);
+    glUniformMatrix4fv(m_Mproj, 1, GL_FALSE, (const GLfloat *)&m_Ortho);
 }
 
 //

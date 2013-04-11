@@ -153,8 +153,6 @@ void CFraps::BeginDraw()
 {
     CHudBase::BeginDraw();
 
-    glUseProgram(m_Program);
-    glUniformMatrix4fv(m_Mproj, 1, GL_FALSE, (const GLfloat *)&m_Ortho);
     glUniform1i(m_Tex, 0); // Texture unit
 }
 

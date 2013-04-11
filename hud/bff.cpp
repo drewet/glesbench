@@ -152,8 +152,6 @@ void CBffFont::BeginDraw()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glUseProgram(m_Program);
-    glUniformMatrix4fv(m_Mproj, 1, GL_FALSE, (const GLfloat *)&m_Ortho);
     glUniform3fv(m_Color, 1, (const GLfloat *)&m_TextColor);
     glUniform1i(m_Tex, 0); // Texture unit
 }
