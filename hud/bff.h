@@ -3,6 +3,18 @@
 
 #include "hud_base.h"
 
+struct FONT_IMAGE
+{
+    GLint Width;
+    GLint Height;
+    GLubyte *pData;
+};
+
+enum
+{
+    ASCII_CHARS = 256
+};
+
 // BFF bitmap font
 // http://www.codehead.co.uk/cbfg
 
@@ -18,16 +30,15 @@ private:
     void BeginDraw();
     void EndDraw();
 
-    bool LoadFont(const char *fname);
+    bool LoadBff(FILE *pFile, FONT_IMAGE *pImage);
 
-    int CellX,CellY,YOffset,RowPitch;
-    char Base;
-    char Width[256];
-    int CurX,CurY;
-    float RowFactor,ColFactor;
-    int RenderStyle;
-    float Rd,Gr,Bl;
-    bool InvertYAxis;
+    char m_BaseIndex;
+    char m_CharWidths[ASCII_CHARS];
+    float m_ColFactor;
+    float m_RowFactor;
+    int m_RowPitch;
+    int m_CharX;
+    int m_CharY;
 };
 
 #endif // __BFF_H__

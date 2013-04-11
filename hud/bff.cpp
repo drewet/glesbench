@@ -5,24 +5,10 @@
 #include <stdarg.h>
 #include <memory.h>
 
-#include <fstream>
-
-using namespace std;
-
-#define BFG_RS_NONE  0x0      // Blend flags
-#define BFG_RS_ALPHA 0x1
-#define BFG_RS_RGB   0x2
-#define BFG_RS_RGBA  0x4
-
-#define BFG_MAXSTRING 255     // Maximum string length
-
-#define WIDTH_DATA_OFFSET  20 // Offset to width data with BFF file
-#define MAP_DATA_OFFSET   276 // Offset to texture image data with BFF file
-
 enum
 {
-    GLYPH_WIDTH = 16,
-    GLYPH_HEIGHT = 16,
+    WIDTH_DATA_OFFSET = 20, // Offset to width data with BFF file
+    MAP_DATA_OFFSET = 276, // Offset to texture image data with BFF file
     MAX_STRING_LENGTH = 256
 };
 
@@ -32,18 +18,51 @@ enum
 CBffFont::CBffFont(const char *pFileName):
     CHudBase(MAX_STRING_LENGTH, true)
 {
-    /*
-    FILE *pFile = fopen(pFileName, "rb");
+    memset(m_CharWidths, 0, sizeof(m_CharWidths));
 
+    FILE *pFile;
+    FONT_IMAGE img;
+
+    pFile = fopen(pFileName, "rb");
     if (!pFile)
     {
         puts("Failed to open font file.");
         return;
     }
-    */
 
-    if (!LoadFont(pFileName))
+    if (!LoadBff(pFile, &img))
+    {
+        fclose(pFile);
         return;
+    }
+
+    fclose(pFile);
+
+#ifdef GL_ES
+    GLenum InternalFormat = GL_RGBA;
+    GLenum Format = GL_RGBA;
+#else
+    GLenum InternalFormat = GL_RGBA8;
+    GLenum Format = GL_BGRA;
+#endif
+
+    glGenTextures(1, &m_Texture);
+    glBindTexture(GL_TEXTURE_2D, m_Texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexImage2D(GL_TEXTURE_2D,
+        0, // Level
+        InternalFormat,
+        img.Width,
+        img.Height,
+        0, // Border
+        Format,
+        GL_UNSIGNED_BYTE,
+        img.pData);
+
+    delete[] img.pData;
 }
 
 //
@@ -77,20 +96,20 @@ void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
         for (int i = 0; i < n; ++i)
         {
             char chr = s[i];
-            int Row = (chr - Base) / RowPitch;
-            int Col = (chr - Base) - Row * RowPitch;
+            int Row = (chr - m_BaseIndex) / m_RowPitch;
+            int Col = (chr - m_BaseIndex) - Row * m_RowPitch;
 
-            float u = Col * ColFactor;
-            float v = Row * RowFactor;
-            float u1 = u + ColFactor;
-            float v1 = v + RowFactor;
+            float u = Col * m_ColFactor;
+            float v = Row * m_RowFactor;
+            float u1 = u + m_ColFactor;
+            float v1 = v + m_RowFactor;
 
-            AddGlyph(pVertices, (float)x, (float)y, CellX, CellY, u, v1, u1, v);
+            AddGlyph(pVertices, (float)x, (float)y, m_CharX, m_CharY, u, v1, u1, v);
 
             ++NumGlyphs;
             pVertices += 4;
 
-            x += Width[chr];
+            x += m_CharWidths[chr];
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, m_VB);
@@ -130,134 +149,65 @@ void CBffFont::EndDraw()
 }
 
 //
-// LoadFont
+// LoadBff
 //
-bool CBffFont::LoadFont(const char *fname)
+bool CBffFont::LoadBff(FILE *pFile, FONT_IMAGE *pImage)
 {
- char *dat,*img;
- fstream in;
- unsigned long fileSize;
- char bpp;
- int ImgX,ImgY;
+    fseek(pFile, 0L, SEEK_END);
+    long Size = ftell(pFile);
+    fseek(pFile, 0, SEEK_SET);
 
- in.open(fname, ios_base::binary | ios_base::in);
+    // Allocate space for file data
+    char *pData = new char[Size];
+    if (!pData)
+        return false;
 
-  if(in.fail())
-   return false;
+    fread(pData, 1, Size, pFile);
 
- // Get Filesize
- in.seekg(0,ios_base::end);
- fileSize=in.tellg();
- in.seekg(0,ios_base::beg);
+    // Check ID is 'BFF2'
+    if((unsigned char)pData[0] != 0xBF ||
+       (unsigned char)pData[1] != 0xF2)
+    {
+        delete[] pData;
+        return false;
+    }
 
- // allocate space for file data
- dat=new char[fileSize];
+    // Grab the rest of the header
+    memcpy(&pImage->Width, &pData[2], sizeof(GLint));
+    memcpy(&pImage->Height, &pData[6], sizeof(GLint));
+    memcpy(&m_CharX, &pData[10], sizeof(int));
+    memcpy(&m_CharY, &pData[14], sizeof(int));
+    char BitsPerPixel = pData[18];
+    m_BaseIndex = pData[19];
 
-  // Read filedata
-  if(!dat)
-   return false;
+    if (BitsPerPixel != 32)
+    {
+        delete[] pData;
+        return false;
+    }
 
- in.read(dat,fileSize);
+    const int ImageSize = (pImage->Width * pImage->Height) * (BitsPerPixel / 8);
 
-  if(in.fail())
-   {
-    delete [] dat;
-    in.close();
-    return false;
-   }
+    // Check filesize
+    if (Size != (MAP_DATA_OFFSET + ImageSize))
+        return false;
 
- in.close();
+    // Calculate font params
+    m_ColFactor = (float)m_CharX / (float)pImage->Width;
+    m_RowFactor = (float)m_CharY / (float)pImage->Height;
+    m_RowPitch = pImage->Width / m_CharX;
 
-  // Check ID is 'BFF2'
-  if((unsigned char)dat[0]!=0xBF || (unsigned char)dat[1]!=0xF2)
-   {
-    delete [] dat;
-    return false;
-   }
+    // Allocate space for image
+    pImage->pData = new GLubyte[ImageSize];
+    if (!pImage->pData)
+    {
+        delete[] pData;
+        return false;
+    }
 
- // Grab the rest of the header
- memcpy(&ImgX,&dat[2],sizeof(int));
- memcpy(&ImgY,&dat[6],sizeof(int));
- memcpy(&CellX,&dat[10],sizeof(int));
- memcpy(&CellY,&dat[14],sizeof(int));
- bpp=dat[18];
- Base=dat[19];
+    memcpy(m_CharWidths, &pData[WIDTH_DATA_OFFSET], ASCII_CHARS); // Grab char widths
+    memcpy(pImage->pData, &pData[MAP_DATA_OFFSET], ImageSize);
+    delete[] pData;
 
-  // Check filesize
-  if(fileSize!=((MAP_DATA_OFFSET)+((ImgX*ImgY)*(bpp/8))))
-      return false;
-
- // Calculate font params
- RowPitch=ImgX/CellX;
- ColFactor=(float)CellX/(float)ImgX;
- RowFactor=(float)CellY/(float)ImgY;
- YOffset=CellY;
-
- // Determine blending options based on BPP
-  switch(bpp)
-   {
-    case 8: // Greyscale
-     RenderStyle=BFG_RS_ALPHA;
-     break;
-
-    case 24: // RGB
-     RenderStyle=BFG_RS_RGB;
-     break;
-
-    case 32: // RGBA
-     RenderStyle=BFG_RS_RGBA;
-     break;
-
-    default: // Unsupported BPP
-     delete [] dat;
-     return false;
-     break;
-   }
-
- // Allocate space for image
- img=new char[(ImgX*ImgY)*(bpp/8)];
-
-  if(!img)
-   {
-    delete [] dat;
-    return false;
-   }
-
- // Grab char widths
- memcpy(Width,&dat[WIDTH_DATA_OFFSET],256);
-
- // Grab image data
- memcpy(img,&dat[MAP_DATA_OFFSET],(ImgX*ImgY)*(bpp/8));
-
- // Create Texture
- glGenTextures(1, &m_Texture);
- glBindTexture(GL_TEXTURE_2D, m_Texture);
- // Fonts should be rendered at native resolution so no need for texture filtering
- glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
- glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
- // Stop chararcters from bleeding over edges
- glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
- glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-
- // Tex creation params are dependent on BPP
-  switch(RenderStyle)
-   {
-    case BFG_RS_ALPHA:
-     glTexImage2D(GL_TEXTURE_2D,0,GL_LUMINANCE,ImgX,ImgY,0,GL_LUMINANCE,GL_UNSIGNED_BYTE,img);
-     break;
-
-    case BFG_RS_RGB:
-     glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,ImgX,ImgY,0,GL_RGB,GL_UNSIGNED_BYTE,img);
-     break;
-
-    case BFG_RS_RGBA:
-     glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,ImgX,ImgY,0,GL_RGBA,GL_UNSIGNED_BYTE,img); // GL ES!
-     break;
-   }
-
- // Clean up
- delete [] img;
- delete [] dat;
-
- return true;
+    return true;
 }
