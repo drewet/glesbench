@@ -16,9 +16,16 @@ enum
 // CBffFont
 //
 CBffFont::CBffFont(const char *pFileName):
-    CHudBase(MAX_STRING_LENGTH, true)
+    CHudBase(MAX_STRING_LENGTH, true),
+    m_BaseIndex(0),
+    m_ColFactor(0.0f),
+    m_RowFactor(0.0f),
+    m_RowPitch(0),
+    m_CharX(0),
+    m_CharY(0)
 {
     memset(m_CharWidths, 0, sizeof(m_CharWidths));
+    m_TextColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
     FILE *pFile;
     FONT_IMAGE img;
@@ -70,6 +77,14 @@ CBffFont::CBffFont(const char *pFileName):
 //
 CBffFont::~CBffFont()
 {
+}
+
+//
+// SetColor
+//
+void CBffFont::SetColor(XMFLOAT3 Color)
+{
+    m_TextColor = Color;
 }
 
 //
@@ -135,6 +150,7 @@ void CBffFont::BeginDraw()
 
     glUseProgram(m_Program);
     glUniformMatrix4fv(m_Mproj, 1, GL_FALSE, (const GLfloat *)&m_Ortho);
+    glUniform3fv(m_Color, 1, (const GLfloat *)&m_TextColor);
     glUniform1i(m_Tex, 0); // Texture unit
 }
 

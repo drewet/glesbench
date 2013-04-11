@@ -24,6 +24,7 @@ public:
     CBffFont(const char *pFileName);
     ~CBffFont();
 
+    void SetColor(XMFLOAT3 Color);
     void DrawString(int x, int y, const char *pFmt, ...);
 
 private:
@@ -39,6 +40,8 @@ private:
     int m_RowPitch;
     int m_CharX;
     int m_CharY;
+
+    XMFLOAT3 m_TextColor;
 };
 
 #endif // __BFF_H__
