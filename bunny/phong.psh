@@ -1,10 +1,9 @@
-#define MAX_POINT_LIGHTS 5
+#define MAX_POINT_LIGHTS 8
 
-uniform vec3       light[MAX_POINT_LIGHTS];
-uniform float      radius[MAX_POINT_LIGHTS];
+uniform vec4       light_and_radius[MAX_POINT_LIGHTS];
+uniform int        count;
 uniform vec3       Kd[MAX_POINT_LIGHTS];
 uniform vec3       Ks[MAX_POINT_LIGHTS];
-uniform float      spec_power[MAX_POINT_LIGHTS];
 uniform vec3       view;
 
 varying vec3       oPos;
@@ -39,10 +38,15 @@ void main()
                 
     for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
     {
-        vec3 L = normalize(light[i] - oPos);
+        // Seems that GLSL compiler doesn't allow to use <count> in for () expression. 
+        if (i == count)
+            break;
+        
+        vec4 lr = light_and_radius[i];      
+        vec3 L = normalize(lr.xyz - oPos);
         vec3 C = phong(N, L, V, Kd[i], 0.15, Kd[i], 0.8, Ks[i], 0.4, mat_spec_power);
-        float dist = length(light[i] - oPos);
-        float att = attenuation(light[i], oPos, radius[i]);
+        float att = attenuation(lr.xyz, oPos, lr.w);
+        
         color += C * att;
     }
 
