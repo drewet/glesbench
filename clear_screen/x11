@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c
-OBJS=main.o xgl.o utils.o fraps.o shader.o clear.o
+OBJS=clear.o main.o xgl.o gccxnamath.o hud_base.o fraps.o chart.o shader.o utils.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
 
@@ -9,23 +9,32 @@ all: clear
 clear: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o clear
     
+clear.o: clear.cpp
+	$(CC) $(CFLAGS) clear.cpp
+
 main.o: ../X11/main.cpp
 	$(CC) $(CFLAGS) ../X11/main.cpp
 	
 xgl.o: ../X11/xgl.cpp
 	$(CC) $(CFLAGS) ../X11/xgl.cpp
+	
+gccxnamath.o: ../xna/gccxnamath.cpp
+	$(CC) $(CFLAGS) ../xna/gccxnamath.cpp
+	
+hud_base.o: ../hud/hud_base.cpp ../hud/hud_base.h
+	$(CC) $(CFLAGS) ../hud/hud_base.cpp
 
-utils.o: ../utils.cpp
-	$(CC) $(CFLAGS) ../utils.cpp
+fraps.o: ../hud/fraps.cpp ../hud/fraps.h
+	$(CC) $(CFLAGS) ../hud/fraps.cpp
 
-fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
-	$(CC) $(CFLAGS) ../fraps/fraps.cpp
+chart.o: ../hud/chart.cpp ../hud/chart.h
+	$(CC) $(CFLAGS) ../hud/chart.cpp
 
 shader.o: ../shader/shader.cpp ../shader/shader.h
 	$(CC) $(CFLAGS) ../shader/shader.cpp
-
-clear.o: clear.cpp
-	$(CC) $(CFLAGS) clear.cpp
     
+utils.o: ../utils.cpp
+	$(CC) $(CFLAGS) ../utils.cpp
+  
 clean:
 	rm -rf *.o clear
