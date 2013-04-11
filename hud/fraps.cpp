@@ -103,6 +103,7 @@ void CFraps::OnPresent(CChart *pChart /* = NULL */)
 //
 void CFraps::Draw()
 {
+    // Make sure that ortho matrix is correct
     assert(m_Width);
     assert(m_Height);
 

@@ -193,7 +193,6 @@ void CHudBase::EndDraw()
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
     glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_CULL_FACE);
 
     glBindTexture(GL_TEXTURE_2D, 0);
 }
