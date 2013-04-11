@@ -9,7 +9,7 @@ CC=$(ARM_GCC_PATH)/arm-lg115x-linux-gnueabi-g++
 INCLUDES=-I$(INCLUDE_PATH)
 CFLAGS=-c $(INCLUDES) -g -DUSE_EGL -DGL_ES 
 
-OBJS=main.o egl.o utils.o gccxnamath.o fraps.o shader.o bunny.o
+OBJS=bunny.o main.o egl.o gccxnamath.o hud_base.o fraps.o bff.o chart.o shader.o utils.o
 
 LIBS=-lEGL -lGLESv2 -lIMGegl -lsrv_um -lusc
 LDFLAGS=-L$(LIB_PATH) $(LIBS)
@@ -19,6 +19,9 @@ all: bunny-egl
 bunny-egl: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o bunny-egl
     
+bunny.o: bunny.cpp vsh.h fsh.h
+	$(CC) $(CFLAGS) bunny.cpp
+
 main.o: ../EGL/main.cpp
 	$(CC) $(CFLAGS) ../EGL/main.cpp
 	
@@ -31,14 +34,20 @@ utils.o: ../utils.cpp
 gccxnamath.o: ../xna/gccxnamath.cpp
 	$(CC) $(CFLAGS) ../xna/gccxnamath.cpp
 	
-fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
-	$(CC) $(CFLAGS) ../fraps/fraps.cpp
+hud_base.o: ../hud/hud_base.cpp ../hud/hud_base.h
+	$(CC) $(CFLAGS) ../hud/hud_base.cpp
+
+fraps.o: ../hud/fraps.cpp ../hud/fraps.h
+	$(CC) $(CFLAGS) ../hud/fraps.cpp
+
+bff.o: ../hud/fraps.cpp ../hud/bff.h
+	$(CC) $(CFLAGS) ../hud/bff.cpp
+
+chart.o: ../hud/chart.cpp ../hud/chart.h
+	$(CC) $(CFLAGS) ../hud/chart.cpp
 	
 shader.o: ../shader/shader.cpp ../shader/shader.h
 	$(CC) $(CFLAGS) ../shader/shader.cpp
-	
-bunny.o: bunny.cpp vsh.h fsh.h
-	$(CC) $(CFLAGS) bunny.cpp
     
 clean:
 	rm -rf *.o bunny-egl
