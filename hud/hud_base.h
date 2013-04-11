@@ -37,6 +37,7 @@ protected:
     GLuint m_Texture;
     GLuint m_Program;
     GLint m_Mproj;
+    GLint m_Color;
     GLint m_Tex;
 
     XMMATRIX m_Ortho;

@@ -9,8 +9,10 @@ CHudBase::CHudBase(unsigned MaxChars, bool bAlphaBlend):
     m_IB(0),
     m_Texture(0),
     m_Program(0),
-    m_Mproj(0),
-    m_Tex(0),
+    // Default values for invalid uniforms
+    m_Mproj(-1),
+    m_Color(-1),
+    m_Tex(-1),
 
     m_Width(0),
     m_Height(0)
@@ -67,45 +69,42 @@ CHudBase::CHudBase(unsigned MaxChars, bool bAlphaBlend):
 
     if (bAlphaBlend)
     {
-    pFsh =
-    #ifdef GL_ES
-    "precision mediump float;\n"
-    #endif
-    "uniform sampler2D  font;\n"
-    "\n"
-    "varying vec2       oTexcoord;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    vec4 color = texture2D(font, oTexcoord);\n"
-    #ifdef GL_ES
-    "    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);\n" // There is no GL_BGRA format in OpenGL ES
-    #else
-    "    gl_FragColor = vec4(1.0f, 1.0f, 1.0f, color.a);\n"
-    #endif
-    "}\n";
+        pFsh =
+        #ifdef GL_ES
+        "precision mediump float;\n"
+        #endif
+        "uniform vec3       color;\n"
+        "uniform sampler2D  font;\n"
+        "\n"
+        "varying vec2       oTexcoord;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    float a = texture2D(font, oTexcoord).a;\n"
+        "    gl_FragColor = vec4(color.rgb, a);\n"
+        "}\n";
     }
     else
     {
-    pFsh =
-    #ifdef GL_ES
-    "precision mediump float;\n"
-    #endif
-    "uniform sampler2D  font;\n"
-    "\n"
-    "varying vec2       oTexcoord;\n"
-    "\n"
-    "void main()\n"
-    "{\n"
-    "    vec4 color = texture2D(font, oTexcoord);\n"
-    "    if (color.a < 1.0)\n"
-    "        discard;\n"
-    #ifdef GL_ES
-    "    gl_FragColor = vec4(color.bgr, 1.);\n" // There is no GL_BGRA format in OpenGL ES
-    #else
-    "    gl_FragColor = vec4(color.rgb, 1.);\n"
-    #endif
-    "}\n";
+        pFsh =
+        #ifdef GL_ES
+        "precision mediump float;\n"
+        #endif
+        "uniform sampler2D  font;\n"
+        "\n"
+        "varying vec2       oTexcoord;\n"
+        "\n"
+        "void main()\n"
+        "{\n"
+        "    vec4 color = texture2D(font, oTexcoord);\n"
+        "    if (color.a < 1.0)\n"
+        "        discard;\n"
+        #ifdef GL_ES
+        "    gl_FragColor = vec4(color.bgr, 1.);\n" // There is no GL_BGRA format in OpenGL ES
+        #else
+        "    gl_FragColor = vec4(color.rgb, 1.);\n"
+        #endif
+        "}\n";
     }
 
     GLuint fsh = LoadGLSLShader(GL_FRAGMENT_SHADER, pFsh);
@@ -127,6 +126,8 @@ CHudBase::CHudBase(unsigned MaxChars, bool bAlphaBlend):
     }
 
     m_Mproj = GetUniformLocation(m_Program, "Mproj");
+    if (bAlphaBlend)
+        m_Color = GetUniformLocation(m_Program, "color");
     m_Tex = GetUniformLocation(m_Program, "font");
 }
 
