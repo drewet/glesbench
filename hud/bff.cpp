@@ -92,6 +92,10 @@ void CBffFont::SetColor(XMFLOAT3 Color)
 //
 void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
 {
+    // Make sure that ortho matrix is correct
+    assert(m_Width);
+    assert(m_Height);
+
     char s[MAX_STRING_LENGTH];
     va_list val;
 
