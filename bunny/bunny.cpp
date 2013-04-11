@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <string.h>
-#include <assert.h>
 
 #include "../ogl_es.h"
 
@@ -112,8 +111,6 @@ XMMATRIX                g_Proj = XMMatrixIdentity();
 //
 void LoadBunnyMesh()
 {
-    puts("Load bunny mesh");
-
     glGenBuffers(1, &g_BunnyVB);
     glBindBuffer(GL_ARRAY_BUFFER, g_BunnyVB);
     glBufferData(GL_ARRAY_BUFFER, sizeof(bunny::g_Vertices), bunny::g_Vertices, GL_STATIC_DRAW);
@@ -130,8 +127,6 @@ void LoadBunnyMesh()
 //
 void LoadKnotMesh()
 {
-    puts("Load knot mesh");
-
     glGenBuffers(1, &g_KnotVB);
     glBindBuffer(GL_ARRAY_BUFFER, g_KnotVB);
     glBufferData(GL_ARRAY_BUFFER, sizeof(knot::g_Vertices), knot::g_Vertices, GL_STATIC_DRAW);
@@ -148,8 +143,6 @@ void LoadKnotMesh()
 //
 void LoadSphereMesh()
 {
-    puts("Load sphere mesh");
-
     glGenBuffers(1, &g_SphereVB);
     glBindBuffer(GL_ARRAY_BUFFER, g_SphereVB);
     glBufferData(GL_ARRAY_BUFFER, sizeof(sphere::g_Vertices), sphere::g_Vertices, GL_STATIC_DRAW);
@@ -622,13 +615,24 @@ void DrawHUD(unsigned Width, unsigned Height)
     int x = 10;
     int y = Height - 25;
 
+    g_pFont->SetColor(XMFLOAT3(0.0f, 1.0f, 1.0f));
     g_pFont->DrawString(x, y, "RENDERER: %s", pRenderer);
     y -= 20;
     g_pFont->DrawString(x, y, "VENDOR: %s", pVendor);
     y -= 20;
     g_pFont->DrawString(x, y, "VERSION: %s", pVersion);
-    y -= 40;
+    y -= 60;
+    g_pFont->SetColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
     g_pFont->DrawString(x, y, "FRAMEBUFFER RESOLUTION: %d x %d", Width, Height);
+    y -= 60;
+
+    unsigned VertexCount = sizeof(bunny::g_Vertices) / sizeof(bunny::g_Vertices[0]);
+    unsigned PolyCount = sizeof(bunny::g_Indices) / sizeof(bunny::g_Indices[0]) / 3;
+
+    g_pFont->SetColor(XMFLOAT3(1.0f, 0.0f, 0.0f));
+    g_pFont->DrawString(x, y, "VERTEX COUNT: %d", VertexCount);
+    y -= 20;
+    g_pFont->DrawString(x, y, "POLYGON COUNT: %d", PolyCount);
     y -= 20;
 
     //g_pChart->Draw(Width, Height);
