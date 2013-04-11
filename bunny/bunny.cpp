@@ -97,7 +97,6 @@ POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
 CBffFont*               g_pFont;
 CBffFont*               g_pTitleFont;
 CFraps*                 g_pFraps;
-//CChart*                 g_pChart;
 
 float                   g_Distance = -2.7f;
 float                   g_SpinX;
@@ -366,7 +365,6 @@ bool Initialize()
 //
 void Cleanup()
 {
-    //SAFE_DELETE(g_pChart);
     SAFE_DELETE(g_pFraps);
     SAFE_DELETE(g_pTitleFont);
     SAFE_DELETE(g_pFont);
@@ -560,7 +558,6 @@ void DrawBunny()
     glEnableVertexAttribArray(1);
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_BunnyIB);
 
-    //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glDrawElements(GL_TRIANGLES, Count, GL_UNSIGNED_SHORT, 0);
 
     glDisableVertexAttribArray(1);
