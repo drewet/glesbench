@@ -22,10 +22,12 @@ CBffFont::CBffFont(const char *pFileName):
     m_RowFactor(0.0f),
     m_RowPitch(0),
     m_CharX(0),
-    m_CharY(0)
+    m_CharY(0),
+
+    m_TextColor(1.0f, 1.0f, 1.0f),
+    m_Scale(1.0f)
 {
     memset(m_CharWidths, 0, sizeof(m_CharWidths));
-    m_TextColor = XMFLOAT3(1.0f, 1.0f, 1.0f);
 
     FILE *pFile;
     FONT_IMAGE img;
@@ -88,6 +90,51 @@ void CBffFont::SetColor(XMFLOAT3 Color)
 }
 
 //
+// SetScale
+//
+void CBffFont::SetScale(float Scale)
+{
+    GLint Filter;
+
+    m_Scale = Scale;
+    if (m_Scale == 1.0f)
+        Filter = GL_NEAREST;
+    else
+        Filter = GL_LINEAR;
+
+    glBindTexture(GL_TEXTURE_2D, m_Texture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Filter);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Filter);
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+//
+// CalcStringWidth
+//
+float CBffFont::CalcStringWidth(const char *pFormat, ...)
+{
+    char s[MAX_STRING_LENGTH];
+    va_list val;
+
+    // Compose string
+    va_start(val, pFormat);
+    vsnprintf(s, MAX_STRING_LENGTH, pFormat, val);
+    va_end(val);
+
+    const int n = (int)strlen(s);
+    float Width = 0.0f;
+
+    for (int i = 0; i < n; ++i)
+    {
+        char chr = s[i];
+
+        Width += m_CharWidths[chr] * m_Scale;
+    }
+
+    return Width;
+}
+
+//
 // DrawString
 //
 void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
@@ -112,6 +159,9 @@ void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
     {
         const int n = (int)strlen(s);
 
+        float fx = x;
+        float fy = y;
+
         for (int i = 0; i < n; ++i)
         {
             char chr = s[i];
@@ -123,12 +173,12 @@ void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
             float u1 = u + m_ColFactor;
             float v1 = v + m_RowFactor;
 
-            AddGlyph(pVertices, (float)x, (float)y, m_CharX, m_CharY, u, v1, u1, v);
+            AddGlyph(pVertices, fx, fy, m_CharX * m_Scale, m_CharY * m_Scale, u, v1, u1, v);
 
             ++NumGlyphs;
             pVertices += 4;
 
-            x += m_CharWidths[chr];
+            fx += m_CharWidths[chr] * m_Scale;
         }
 
         glBindBuffer(GL_ARRAY_BUFFER, m_VB);

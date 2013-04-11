@@ -25,7 +25,9 @@ public:
     ~CBffFont();
 
     void SetColor(XMFLOAT3 Color);
-    void DrawString(int x, int y, const char *pFmt, ...);
+    void SetScale(float Scale);
+    float CalcStringWidth(const char *pFormat, ...);
+    void DrawString(int x, int y, const char *pFormat, ...);
 
 private:
     void BeginDraw();
@@ -42,6 +44,7 @@ private:
     int m_CharY;
 
     XMFLOAT3 m_TextColor;
+    float m_Scale;
 };
 
 #endif // __BFF_H__
