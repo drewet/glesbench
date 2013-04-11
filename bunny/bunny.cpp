@@ -231,22 +231,10 @@ bool LoadShaders()
 }
 
 //
-// Initialize
+// SetupLights
 //
-bool Initialize()
+void SetupLights()
 {
-    puts("Initialize...");
-
-#if !defined(USE_SDL) && !defined(USE_EGL)
-    glewInit();
-#endif
-
-    LoadBunnyMesh();
-    LoadKnotMesh();
-    LoadSphereMesh();
-    bool bShaders = LoadShaders();
-    assert(bShaders);
-
     memset(g_PointLights, 0, sizeof(g_PointLights));
 
     POINT_LIGHT_SOURCE *l;
@@ -346,16 +334,36 @@ bool Initialize()
     l->OrbitRadius = 2.0f;
     l->OrbitRoll = -20.0f;
     l->Velocity = 6.0f;
+}
 
-    // Setup render states once
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+//
+// Initialize
+//
+bool Initialize()
+{
+    puts("Initialize...");
+
+#if !defined(USE_SDL) && !defined(USE_EGL)
+    glewInit();
+#endif
+
+    LoadBunnyMesh();
+    LoadKnotMesh();
+    LoadSphereMesh();
+    bool bShaders = LoadShaders();
+    assert(bShaders);
+
+    SetupLights();
 
     g_pFont = new CBffFont("fixedsys.bff");
     g_pTitleFont = new CBffFont("arial_narrow.bff");
     g_pTitleFont->SetScale(0.8f);
     g_pFraps = new CFraps();
+
+    // Setup render states once
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
 
     return true;
 }
