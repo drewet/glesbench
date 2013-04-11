@@ -1,4 +1,4 @@
-#include "../fraps/fraps.h"
+#include "../hud/fraps.h"
 
 void BeginFrame();
 void EndFrame();
@@ -43,7 +43,8 @@ void Render(unsigned Width, unsigned Height)
     glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    g_pFraps->Draw(Width, Height);
+    g_pFraps->SetScreenSize(Width, Height);
+    g_pFraps->Draw();
 
     EndFrame();
 
