@@ -9,7 +9,7 @@ CC=$(ARM_GCC_PATH)/arm-lg115x-linux-gnueabi-g++
 INCLUDES=-I$(INCLUDE_PATH)
 CFLAGS=-c $(INCLUDES) -g -DUSE_EGL -DGL_ES
 
-OBJS=main.o egl.o utils.o fraps.o shader.o clear.o
+OBJS=clear.o main.o egl.o gccxnamath.o hud_base.o fraps.o chart.o shader.o utils.o
 
 LIBS=-lEGL -lGLESv2 -lIMGegl -lsrv_um -lusc
 LDFLAGS=-L$(LIB_PATH) $(LIBS)
@@ -19,23 +19,32 @@ all: clear-egl
 clear-egl: $(OBJS)
 	$(CC) $(OBJS) $(LDFLAGS) -o clear-egl
     
+clear.o: clear.cpp
+	$(CC) $(CFLAGS) clear.cpp
+
 main.o: ../EGL/main.cpp
 	$(CC) $(CFLAGS) ../EGL/main.cpp
 	
 egl.o: ../EGL/egl.cpp
 	$(CC) $(CFLAGS) ../EGL/egl.cpp
 
-utils.o: ../utils.cpp
-	$(CC) $(CFLAGS) ../utils.cpp
+gccxnamath.o: ../xna/gccxnamath.cpp
+	$(CC) $(CFLAGS) ../xna/gccxnamath.cpp
 
-fraps.o: ../fraps/fraps.cpp ../fraps/fraps.h
-	$(CC) $(CFLAGS) ../fraps/fraps.cpp
+hud_base.o: ../hud/hud_base.cpp ../hud/hud_base.h
+	$(CC) $(CFLAGS) ../hud/hud_base.cpp
+
+fraps.o: ../hud/fraps.cpp ../hud/fraps.h
+	$(CC) $(CFLAGS) ../hud/fraps.cpp
+
+chart.o: ../hud/chart.cpp ../hud/chart.h
+	$(CC) $(CFLAGS) ../hud/chart.cpp
 
 shader.o: ../shader/shader.cpp ../shader/shader.h
 	$(CC) $(CFLAGS) ../shader/shader.cpp
 
-clear.o: clear.cpp
-	$(CC) $(CFLAGS) clear.cpp
-    
+utils.o: ../utils.cpp
+	$(CC) $(CFLAGS) ../utils.cpp
+  
 clean:
 	rm -rf *.o clear-egl
