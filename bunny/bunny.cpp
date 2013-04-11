@@ -38,7 +38,7 @@ float GetElapsedMilliseconds();
 
 enum
 {
-    MAX_POINT_LIGHTS = 5//8
+    MAX_POINT_LIGHTS = 8
 };
 
 struct POINT_LIGHT_SOURCE
@@ -70,7 +70,7 @@ struct PHONG_UNIFORMS
     GLint Mworld;
     GLint Mwvp;
     GLint Light[MAX_POINT_LIGHTS];
-    GLint Radius[MAX_POINT_LIGHTS];
+    GLint Count;
     GLint Kd[MAX_POINT_LIGHTS];
     GLint Ks[MAX_POINT_LIGHTS];
     GLint ViewPos;
@@ -104,6 +104,8 @@ float                   g_SpinY;
 
 XMMATRIX                g_View = XMMatrixIdentity();
 XMMATRIX                g_Proj = XMMatrixIdentity();
+
+GLuint                  g_LightCount = 8;
 
 //
 // LoadBunnyMesh
@@ -214,16 +216,15 @@ bool LoadShaders()
     {
         char name[256];
 
-        sprintf(name, "light[%d]", i);
+        sprintf(name, "light_and_radius[%d]", i);
         g_PhongUniforms.Light[i] = GetUniformLocation(g_PhongProgram, name);
-        sprintf(name, "radius[%d]", i);
-        g_PhongUniforms.Radius[i] = GetUniformLocation(g_PhongProgram, name);
         sprintf(name, "Kd[%d]", i);
         g_PhongUniforms.Kd[i] = GetUniformLocation(g_PhongProgram, name);
         sprintf(name, "Ks[%d]", i);
         g_PhongUniforms.Ks[i] = GetUniformLocation(g_PhongProgram, name);
     }
 
+    g_PhongUniforms.Count = GetUniformLocation(g_PhongProgram, "count");
     g_PhongUniforms.ViewPos = GetUniformLocation(g_PhongProgram, "view");
 
     return true;
@@ -312,7 +313,7 @@ bool Initialize()
     l->OrbitRadius = 1.25f;
     l->OrbitRoll = 65.0f;
     l->Velocity = 3.0f;
-/*
+
     l = &g_PointLights[5];
     l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
     l->AttenuationRadius = 2.0f;
@@ -345,7 +346,7 @@ bool Initialize()
     l->OrbitRadius = 2.0f;
     l->OrbitRoll = -20.0f;
     l->Velocity = 6.0f;
-*/
+
     // Setup render states once
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -436,16 +437,21 @@ void UpdateBunnyConstantsVS()
 //
 void UpdateBunnyConstantsPS()
 {
-    for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
+    for (int i = 0; i < g_LightCount; ++i)
     {
         const POINT_LIGHT_SOURCE *pLight = &g_PointLights[i];
+        XMFLOAT4 LightAndRadius(
+            pLight->Position.x,
+            pLight->Position.y,
+            pLight->Position.z,
+            pLight->AttenuationRadius);
 
-        glUniform3fv(g_PhongUniforms.Light[i], 1, (const GLfloat *)&pLight->Position);
-        glUniform1f(g_PhongUniforms.Radius[i], pLight->AttenuationRadius);
+        glUniform4fv(g_PhongUniforms.Light[i], 1, (const GLfloat *)&LightAndRadius);
         glUniform3fv(g_PhongUniforms.Kd[i], 1, (const GLfloat *)&pLight->DiffuseColor);
         glUniform3fv(g_PhongUniforms.Ks[i], 1, (const GLfloat *)&pLight->SpecularColor);
     }
 
+    glUniform1i(g_PhongUniforms.Count, g_LightCount);
     glUniform3f(g_PhongUniforms.ViewPos, 0.0f, 0.0f, -g_Distance);
 }
 
@@ -574,7 +580,7 @@ void DrawLights()
 
     glUseProgram(g_WvpAndColorProgram);
 
-    for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
+    for (int i = 0; i < g_LightCount; ++i)
     {
         POINT_LIGHT_SOURCE *pLight = &g_PointLights[i];
          
@@ -647,7 +653,7 @@ void DrawHUD(unsigned Width, unsigned Height)
     y -= 20;
     g_pFont->DrawString(x, y, "POLYGON COUNT: %d", PolyCount);
     y -= 20;
-    g_pFont->DrawString(x, y, "POINT LIGHTS: %d", MAX_POINT_LIGHTS);
+    g_pFont->DrawString(x, y, "POINT LIGHTS: %d", g_LightCount);
     y -= 20;
 
     g_pFont->SetColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
