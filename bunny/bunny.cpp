@@ -94,10 +94,9 @@ PHONG_UNIFORMS          g_PhongUniforms;
 float                   g_ElapsedTime = 0.0f;
 POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
 
-CFraps*                 g_pFraps;
-CChart*                 g_pChart;
-//CFont*                  g_pFont;
 CBffFont*               g_pFont;
+CFraps*                 g_pFraps;
+//CChart*                 g_pChart;
 
 float                   g_Distance = -2.7f;
 float                   g_SpinX;
@@ -352,11 +351,10 @@ bool Initialize()
     glEnable(GL_CULL_FACE);
     glCullFace(GL_BACK);
 
-    g_pFraps = new CFraps();
-    g_pChart = new CChart();
     g_pFont = new CBffFont("fixedsys.bff");
-
-    g_pChart->AddFpsValue(0.0f);
+    g_pFraps = new CFraps();
+    //g_pChart = new CChart();
+    //g_pChart->AddFpsValue(0.0f);
 
     return true;
 }
@@ -366,9 +364,9 @@ bool Initialize()
 //
 void Cleanup()
 {
-    SAFE_DELETE(g_pFont);
-    SAFE_DELETE(g_pChart);
+    //SAFE_DELETE(g_pChart);
     SAFE_DELETE(g_pFraps);
+    SAFE_DELETE(g_pFont);
 
     glDeleteProgram(g_PhongProgram);
     glDeleteProgram(g_WvpAndColorProgram);
@@ -607,18 +605,17 @@ void DrawHUD(unsigned Width, unsigned Height)
     static const char *pRenderer = NULL;
     static const char *pVendor = NULL;
     static const char *pVersion = NULL;
+    static const char *pEGLVersion = NULL;
 
     if (!pRenderer)
     {
         // Call different glGet*() only once
         pRenderer = (const char *)glGetString(GL_RENDERER);
-    #ifdef USE_EGL
-        pVendor = eglQueryString(g_Display, EGL_VENDOR);
-        pVersion = eglQueryString(g_Display, EGL_VERSION);
-    #else
         pVendor = (const char *)glGetString(GL_VENDOR);
         pVersion = (const char *)glGetString(GL_VERSION);
-    #endif // !USE_EGL
+#ifdef USE_EGL
+        pEGLVersion = eglQueryString(g_Display, EGL_VERSION);
+#endif
     }
 
     int x = 10;
@@ -630,6 +627,10 @@ void DrawHUD(unsigned Width, unsigned Height)
     g_pFont->DrawString(x, y, "VENDOR: %s", pVendor);
     y -= 20;
     g_pFont->DrawString(x, y, "VERSION: %s", pVersion);
+#ifdef USE_EGL
+    y -= 20;
+    g_pFont->DrawString(x, y, "EGL VERSION: %s", pEGLVersion);
+#endif
     y -= 60;
 
     g_pFont->SetColor(XMFLOAT3(1.0f, 1.0f, 1.0f));
@@ -649,7 +650,8 @@ void DrawHUD(unsigned Width, unsigned Height)
     g_pFont->DrawString(x, y, "POINT LIGHTS: %d", MAX_POINT_LIGHTS);
     y -= 20;
 
-    //g_pChart->Draw(Width, Height);
+    g_pFont->SetColor(XMFLOAT3(0.0f, 0.0f, 0.0f));
+    g_pFont->DrawString(Width - 190, 0, "OPENGL ES 2.0 BENCHMARK");
 }
 
 //
@@ -685,5 +687,5 @@ void Render(unsigned Width, unsigned Height)
 
     EndFrame();
 
-    g_pFraps->OnPresent(g_pChart);
+    g_pFraps->OnPresent();
 }
