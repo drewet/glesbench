@@ -35,7 +35,7 @@ CBffFont::CBffFont(const char *pFileName):
     pFile = fopen(pFileName, "rb");
     if (!pFile)
     {
-        puts("Failed to open font file.");
+        puts("Error : Failed to open font file.");
         return;
     }
 
@@ -142,6 +142,11 @@ void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
     // Make sure that ortho matrix is correct
     assert(m_Width);
     assert(m_Height);
+
+    // Draw only if texture was loaded successfully.
+    assert(m_Texture);
+    if (0 == m_Texture)
+        return;
 
     char s[MAX_STRING_LENGTH];
     va_list val;
