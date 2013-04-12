@@ -74,13 +74,13 @@ CHudBase::CHudBase(unsigned MaxChars, bool bAlphaBlend):
         "precision mediump float;\n"
         #endif
         "uniform vec3       color;\n"
-        "uniform sampler2D  font;\n"
+        "uniform sampler2D  t;\n"
         "\n"
         "varying vec2       oTexcoord;\n"
         "\n"
         "void main()\n"
         "{\n"
-        "    float a = texture2D(font, oTexcoord).a;\n"
+        "    float a = texture2D(t, oTexcoord).a;\n"
         "    gl_FragColor = vec4(color.rgb, a);\n"
         "}\n";
     }
@@ -90,13 +90,13 @@ CHudBase::CHudBase(unsigned MaxChars, bool bAlphaBlend):
         #ifdef GL_ES
         "precision mediump float;\n"
         #endif
-        "uniform sampler2D  font;\n"
+        "uniform sampler2D  t;\n"
         "\n"
         "varying vec2       oTexcoord;\n"
         "\n"
         "void main()\n"
         "{\n"
-        "    vec4 color = texture2D(font, oTexcoord);\n"
+        "    vec4 color = texture2D(t, oTexcoord);\n"
         "    if (color.a < 1.0)\n"
         "        discard;\n"
         #ifdef GL_ES
@@ -128,7 +128,7 @@ CHudBase::CHudBase(unsigned MaxChars, bool bAlphaBlend):
     m_Mproj = GetUniformLocation(m_Program, "Mproj");
     if (bAlphaBlend)
         m_Color = GetUniformLocation(m_Program, "color");
-    m_Tex = GetUniformLocation(m_Program, "font");
+    m_Tex = GetUniformLocation(m_Program, "t");
 }
 
 //
@@ -164,6 +164,7 @@ void CHudBase::SetScreenSize(unsigned Width, unsigned Height)
 void CHudBase::BeginDraw()
 {
     glDisable(GL_DEPTH_TEST);
+    glDepthMask(GL_FALSE);
 
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, m_Texture);
@@ -195,9 +196,10 @@ void CHudBase::EndDraw()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 
-    glEnable(GL_DEPTH_TEST);
-
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    glDepthMask(GL_TRUE);
+    glEnable(GL_DEPTH_TEST);
 }
 
 //
