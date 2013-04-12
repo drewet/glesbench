@@ -12,6 +12,7 @@
 
 #include "vsh.h"
 #include "fsh.h"
+#include "mesh.h"
 #include "../shader/shader.h"
 #include "../hud/fraps.h"
 #include "../hud/chart.h"
@@ -80,12 +81,13 @@ struct PHONG_UNIFORMS
 //
 // Globals
 //
-GLuint                  g_BunnyVB;
-GLuint                  g_BunnyIB;
-GLuint                  g_KnotVB;
-GLuint                  g_KnotIB;
-GLuint                  g_SphereVB;
-GLuint                  g_SphereIB;
+CMesh*                  g_pBunny;
+CMesh*                  g_pSphere;
+
+CBffFont*               g_pFont;
+CBffFont*               g_pTitleFont;
+CFraps*                 g_pFraps;
+CBackground*            g_pBackground;
 
 GLuint                  g_WvpAndColorProgram;
 WVP_COLOR_UNIFORMS      g_WvpAndColorUniforms;
@@ -95,11 +97,6 @@ PHONG_UNIFORMS          g_PhongUniforms;
 float                   g_ElapsedTime = 0.0f;
 POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
 
-CBffFont*               g_pFont;
-CBffFont*               g_pTitleFont;
-CFraps*                 g_pFraps;
-CBackground*            g_pBackground;
-
 float                   g_Distance = -3.3f;
 float                   g_SpinX;
 float                   g_SpinY;
@@ -108,54 +105,6 @@ XMMATRIX                g_View = XMMatrixIdentity();
 XMMATRIX                g_Proj = XMMatrixIdentity();
 
 GLuint                  g_LightCount = 2;
-
-//
-// LoadBunnyMesh
-//
-void LoadBunnyMesh()
-{
-    glGenBuffers(1, &g_BunnyVB);
-    glBindBuffer(GL_ARRAY_BUFFER, g_BunnyVB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(bunny::g_Vertices), bunny::g_Vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &g_BunnyIB);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_BunnyIB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(bunny::g_Indices), bunny::g_Indices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-//
-// LoadKnotMesh
-//
-void LoadKnotMesh()
-{
-    glGenBuffers(1, &g_KnotVB);
-    glBindBuffer(GL_ARRAY_BUFFER, g_KnotVB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(knot::g_Vertices), knot::g_Vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &g_KnotIB);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_KnotIB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(knot::g_Indices), knot::g_Indices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
-
-//
-// LoadSphereMesh
-//
-void LoadSphereMesh()
-{
-    glGenBuffers(1, &g_SphereVB);
-    glBindBuffer(GL_ARRAY_BUFFER, g_SphereVB);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(sphere::g_Vertices), sphere::g_Vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glGenBuffers(1, &g_SphereIB);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_SphereIB);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(sphere::g_Indices), sphere::g_Indices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-}
 
 //
 // LoadShaders
@@ -349,13 +298,11 @@ bool Initialize()
     glewInit();
 #endif
 
-    LoadBunnyMesh();
-    LoadKnotMesh();
-    LoadSphereMesh();
-    bool bShaders = LoadShaders();
-    assert(bShaders);
+    g_pBunny = new CMesh((const VERTEX *)bunny::g_Vertices, sizeof(bunny::g_Vertices),
+        bunny::g_Indices, sizeof(bunny::g_Indices) / sizeof(bunny::g_Indices[0]));
 
-    SetupLights();
+    g_pSphere = new CMesh((const VERTEX *)sphere::g_Vertices, sizeof(sphere::g_Vertices),
+        sphere::g_Indices, sizeof(sphere::g_Indices) / sizeof(sphere::g_Indices[0]));
 
     g_pFont = new CBffFont("fixedsys.bff");
     g_pTitleFont = new CBffFont("arial_narrow.bff");
@@ -363,6 +310,11 @@ bool Initialize()
     g_pTitleFont->SetColor(XMFLOAT3(0.75f, 0.75f, 0.75f));
     g_pFraps = new CFraps();
     g_pBackground = new CBackground();
+
+    bool bShaders = LoadShaders();
+    assert(bShaders);
+
+    SetupLights();
 
     // Setup render states once
     glEnable(GL_DEPTH_TEST);
@@ -382,15 +334,11 @@ void Cleanup()
     SAFE_DELETE(g_pTitleFont);
     SAFE_DELETE(g_pFont);
 
+    SAFE_DELETE(g_pSphere);
+    SAFE_DELETE(g_pBunny);
+
     glDeleteProgram(g_PhongProgram);
     glDeleteProgram(g_WvpAndColorProgram);
-
-    glDeleteBuffers(1, &g_SphereIB);
-    glDeleteBuffers(1, &g_SphereVB);
-    glDeleteBuffers(1, &g_KnotIB);
-    glDeleteBuffers(1, &g_KnotVB);
-    glDeleteBuffers(1, &g_BunnyIB);
-    glDeleteBuffers(1, &g_BunnyVB);
 }
 
 //
@@ -509,48 +457,6 @@ void UpdateFillColor(XMFLOAT3 FillColor)
 }
 
 //
-// DrawKnots
-// Creates vertex shader load by drawing high-poly meshes
-//
-void DrawKnots()
-{
-    GLsizei Stride = 0; // Tightly packed
-    GLsizei Count = sizeof(knot::g_Indices) / sizeof(knot::g_Indices[0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, g_KnotVB);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0));
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_KnotIB);
-
-    glUseProgram(g_WvpAndColorProgram);
-    
-    const float Z = -4.0f;
-    float Y;
-
-    Y = -1.0f;
-    for (int i = 0; i < 3; ++i)
-    {
-        UpdateKnotConstantsVS(XMFLOAT3(-5.0f, Y, Z));
-        UpdateFillColor(XMFLOAT3(1.0f, 0.0f, 0.0f));
-        
-        glDrawElements(GL_TRIANGLES, Count, GL_UNSIGNED_SHORT, 0);
-        Y += 1.0f;
-    }
-
-    Y = -1.0f;
-    for (int i = 0; i < 3; ++i)
-    {
-        UpdateKnotConstantsVS(XMFLOAT3(5.0f, Y, Z));
-        UpdateFillColor(XMFLOAT3(1.0f, 1.0f, 0.0f));
-
-        glDrawElements(GL_TRIANGLES, Count, GL_UNSIGNED_SHORT, 0);
-        Y += 1.0f;
-    }
-
-    glDisableVertexAttribArray(0);
-}
-
-//
 // DrawBunny
 // Creates fragment shader load with phong lighting
 //
@@ -561,20 +467,7 @@ void DrawBunny()
     UpdateBunnyConstantsVS();
     UpdateBunnyConstantsPS();
 
-    GLsizei Stride = sizeof(GLfloat) * 6;
-    GLsizei Count = sizeof(bunny::g_Indices) / sizeof(bunny::g_Indices[0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, g_BunnyVB);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0)); // Vertices
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(sizeof(GL_FLOAT) * 3)); // Normals
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_BunnyIB);
-
-    glDrawElements(GL_TRIANGLES, Count, GL_UNSIGNED_SHORT, 0);
-
-    glDisableVertexAttribArray(1);
-    glDisableVertexAttribArray(0);
+    g_pBunny->Draw();
 }
 
 //
@@ -582,14 +475,6 @@ void DrawBunny()
 //
 void DrawLights()
 {
-    GLsizei Stride = 0; // Tightly packed
-    GLsizei Count = sizeof(sphere::g_Indices) / sizeof(sphere::g_Indices[0]);
-
-    glBindBuffer(GL_ARRAY_BUFFER, g_SphereVB);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0));
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_SphereIB);
-
     glUseProgram(g_WvpAndColorProgram);
 
     for (int i = 0; i < g_LightCount; ++i)
@@ -599,10 +484,8 @@ void DrawLights()
         UpdateSphereConstantsVS(pLight->Position);
         UpdateFillColor(pLight->DiffuseColor);
 
-        glDrawElements(GL_TRIANGLES, Count, GL_UNSIGNED_SHORT, 0);
+        g_pSphere->Draw();
     }
-
-    glDisableVertexAttribArray(0);
 }
 
 //
