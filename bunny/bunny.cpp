@@ -566,8 +566,7 @@ void Render(unsigned Width, unsigned Height)
     BeginFrame();
 
     glViewport(0, 0, Width, Height);
-    glClearColor(0.35f, 0.53f, 0.7f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_DEPTH_BUFFER_BIT); // No need to clear color buffer, because we draw background image
     
     g_View = XMMatrixTranslation(0.0f, 0.0f, g_Distance);
     g_Proj = XMMatrixPerspectiveFovRH(XMConvertToRadians(45.0f),
