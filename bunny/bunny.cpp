@@ -360,6 +360,7 @@ bool Initialize()
     g_pFont = new CBffFont("fixedsys.bff");
     g_pTitleFont = new CBffFont("arial_narrow.bff");
     g_pTitleFont->SetScale(0.8f);
+    g_pTitleFont->SetColor(XMFLOAT3(0.75f, 0.75f, 0.75f));
     g_pFraps = new CFraps();
     g_pBackground = new CBackground();
 
@@ -434,7 +435,7 @@ void UpdateBunnyConstantsVS()
     XMMATRIX SpinX = XMMatrixRotationX(XMConvertToRadians(g_SpinY));
     XMMATRIX SpinY = XMMatrixRotationY(XMConvertToRadians(g_SpinX));
     XMMATRIX Pivot = XMMatrixMultiply(SpinY, SpinX);
-    XMMATRIX Trans = XMMatrixTranslation(0.0f, 0.15f, 0.0f); // Lift slightly up
+    XMMATRIX Trans = XMMatrixTranslation(0.0f, 0.1f, 0.0f); // Lift slightly up
     XMMATRIX World = XMMatrixMultiply(Pivot, Trans);
     XMMATRIX WorldView = XMMatrixMultiply(World, g_View);
     XMMATRIX WorldViewProj = XMMatrixMultiply(WorldView, g_Proj);
@@ -666,7 +667,6 @@ void DrawHUD(unsigned Width, unsigned Height)
 
     const char *pTitleString = "OPENGL ES 2.0 BENCHMARK";
 
-    g_pTitleFont->SetColor(XMFLOAT3(1.0f, 0.0f, 0.0f));
     float w = g_pTitleFont->CalcStringWidth(pTitleString);
     g_pTitleFont->DrawString((int)((Width - w) / 2.0f), 0, pTitleString);
 
