@@ -100,7 +100,7 @@ CBffFont*               g_pTitleFont;
 CFraps*                 g_pFraps;
 CBackground*            g_pBackground;
 
-float                   g_Distance = -2.7f;
+float                   g_Distance = -3.3f;
 float                   g_SpinX;
 float                   g_SpinY;
 
@@ -687,7 +687,7 @@ void Render(unsigned Width, unsigned Height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     g_View = XMMatrixTranslation(0.0f, 0.0f, g_Distance);
-    g_Proj = XMMatrixPerspectiveFovRH(XMConvertToRadians(60.0f),
+    g_Proj = XMMatrixPerspectiveFovRH(XMConvertToRadians(45.0f),
         Width / (float)Height, 0.1f, 100.0f);
 
     // Bunny rotation
