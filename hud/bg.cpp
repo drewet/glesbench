@@ -3,8 +3,8 @@
 
 enum
 {
-    BG_WIDTH = 1280,
-    BG_HEIGHT = 720
+    BG_WIDTH = 1920,
+    BG_HEIGHT = 1080
 };
 
 //
