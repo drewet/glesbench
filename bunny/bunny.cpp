@@ -16,6 +16,7 @@
 #include "../hud/fraps.h"
 #include "../hud/chart.h"
 #include "../hud/bff.h"
+#include "../hud/bg.h"
 
 namespace bunny {
 #include "models/bunny.h"
@@ -97,6 +98,7 @@ POINT_LIGHT_SOURCE      g_PointLights[MAX_POINT_LIGHTS];
 CBffFont*               g_pFont;
 CBffFont*               g_pTitleFont;
 CFraps*                 g_pFraps;
+CBackground*            g_pBackground;
 
 float                   g_Distance = -2.7f;
 float                   g_SpinX;
@@ -105,7 +107,7 @@ float                   g_SpinY;
 XMMATRIX                g_View = XMMatrixIdentity();
 XMMATRIX                g_Proj = XMMatrixIdentity();
 
-GLuint                  g_LightCount = 8;
+GLuint                  g_LightCount = 2;
 
 //
 // LoadBunnyMesh
@@ -246,7 +248,7 @@ void SetupLights()
     l = &g_PointLights[0];
     l->Center = XMFLOAT3(-1.0f, 1.0f, 0.0f);
     l->AttenuationRadius = 2.0f;
-    l->DiffuseColor = XMFLOAT3(1.0f, 0.5f, 0.0f);
+    l->DiffuseColor = XMFLOAT3(0.0f, 0.5f, 1.0f);
     l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
     l->bMoveable = false;
     l->bClockwiseOrbit = false;
@@ -257,7 +259,7 @@ void SetupLights()
     l = &g_PointLights[1];
     l->Center = XMFLOAT3(1.0f, 1.5f, 1.0f);
     l->AttenuationRadius = 5.0f;
-    l->DiffuseColor = XMFLOAT3(0.0f, 0.5f, 0.25f);
+    l->DiffuseColor = XMFLOAT3(0.75f, 0.75f, 0.75f);
     l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
     l->bMoveable = false;
     l->bClockwiseOrbit = false;
@@ -359,6 +361,7 @@ bool Initialize()
     g_pTitleFont = new CBffFont("arial_narrow.bff");
     g_pTitleFont->SetScale(0.8f);
     g_pFraps = new CFraps();
+    g_pBackground = new CBackground();
 
     // Setup render states once
     glEnable(GL_DEPTH_TEST);
@@ -373,6 +376,7 @@ bool Initialize()
 //
 void Cleanup()
 {
+    SAFE_DELETE(g_pBackground);
     SAFE_DELETE(g_pFraps);
     SAFE_DELETE(g_pTitleFont);
     SAFE_DELETE(g_pFont);
@@ -662,7 +666,7 @@ void DrawHUD(unsigned Width, unsigned Height)
 
     const char *pTitleString = "OPENGL ES 2.0 BENCHMARK";
 
-    g_pTitleFont->SetColor(XMFLOAT3(1.0f, 1.0f, 0.0f));
+    g_pTitleFont->SetColor(XMFLOAT3(1.0f, 0.0f, 0.0f));
     float w = g_pTitleFont->CalcStringWidth(pTitleString);
     g_pTitleFont->DrawString((int)((Width - w) / 2.0f), 0, pTitleString);
 
@@ -695,6 +699,9 @@ void Render(unsigned Width, unsigned Height)
         POINT_LIGHT_SOURCE *pLight = &g_PointLights[i]; 
         CalcLightPosition(pLight);
     }
+
+    g_pBackground->SetScreenSize(Width, Height);
+    g_pBackground->Draw();
 
     DrawBunny();
     DrawLights();
