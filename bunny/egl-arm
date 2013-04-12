@@ -9,7 +9,7 @@ CC=$(ARM_GCC_PATH)/arm-lg115x-linux-gnueabi-g++
 INCLUDES=-I$(INCLUDE_PATH)
 CFLAGS=-c $(INCLUDES) -g -DUSE_EGL -DGL_ES 
 
-OBJS=bunny.o main.o egl.o gccxnamath.o hud_base.o fraps.o bff.o chart.o shader.o utils.o
+OBJS=bunny.o main.o egl.o gccxnamath.o hud_base.o bg.o fraps.o bff.o chart.o shader.o utils.o
 
 LIBS=-lEGL -lGLESv2 -lIMGegl -lsrv_um -lusc
 LDFLAGS=-L$(LIB_PATH) $(LIBS)
@@ -36,6 +36,9 @@ gccxnamath.o: ../xna/gccxnamath.cpp
 	
 hud_base.o: ../hud/hud_base.cpp ../hud/hud_base.h
 	$(CC) $(CFLAGS) ../hud/hud_base.cpp
+
+bg.o: ../hud/bg.cpp ../hud/bg.h
+	$(CC) $(CFLAGS) ../hud/bg.cpp
 
 fraps.o: ../hud/fraps.cpp ../hud/fraps.h
 	$(CC) $(CFLAGS) ../hud/fraps.cpp
