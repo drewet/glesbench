@@ -305,7 +305,7 @@ bool Initialize()
         sphere::g_Indices, sizeof(sphere::g_Indices) / sizeof(sphere::g_Indices[0]));
 
     g_pFont = new CBffFont("fixedsys.bff");
-    g_pTitleFont = new CBffFont("arial_narrow.bff");
+    g_pTitleFont = new CBffFont("arialn.bff");
     g_pTitleFont->SetScale(0.8f);
     g_pTitleFont->SetColor(XMFLOAT3(0.75f, 0.75f, 0.75f));
     g_pFraps = new CFraps();
