@@ -1,6 +1,6 @@
 CC=g++
 CFLAGS=-c -g
-OBJS=bunny.o main.o xgl.o gccxnamath.o hud_base.o bg.o fraps.o chart.o bff.o shader.o utils.o
+OBJS=bunny.o mesh.o main.o xgl.o gccxnamath.o hud_base.o bg.o fraps.o chart.o bff.o shader.o utils.o
 LIBS=-lX11 -lGL -lGLEW
 LDFLAGS=$(LIBS)
 
@@ -11,6 +11,9 @@ bunny: $(OBJS)
     
 bunny.o: bunny.cpp vsh.h fsh.h
 	$(CC) $(CFLAGS) bunny.cpp
+
+mesh.o: mesh.cpp mesh.h
+	$(CC) $(CFLAGS) mesh.cpp
 
 main.o: ../X11/main.cpp
 	$(CC) $(CFLAGS) ../X11/main.cpp
@@ -44,3 +47,12 @@ utils.o: ../utils.cpp
 
 clean:
 	rm -rf *.o bunny
+	rm -rf bin
+
+install:
+	mkdir -p bin
+	cp ./bunny		bin/bunny
+	cp ./phong.psh		bin/phong.psh
+	cp ./bg			bin/bg
+	cp ./fixedsys.bff	bin/fixedsys.bff
+	cp ./arialn.bff		bin/arialn.bff

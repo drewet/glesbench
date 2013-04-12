@@ -9,7 +9,7 @@ CC=$(ARM_GCC_PATH)/arm-lg115x-linux-gnueabi-g++
 INCLUDES=-I$(INCLUDE_PATH)
 CFLAGS=-c $(INCLUDES) -g -DUSE_EGL -DGL_ES 
 
-OBJS=bunny.o main.o egl.o gccxnamath.o hud_base.o bg.o fraps.o bff.o chart.o shader.o utils.o
+OBJS=bunny.o mesh.o main.o egl.o gccxnamath.o hud_base.o bg.o fraps.o bff.o chart.o shader.o utils.o
 
 LIBS=-lEGL -lGLESv2 -lIMGegl -lsrv_um -lusc
 LDFLAGS=-L$(LIB_PATH) $(LIBS)
@@ -21,6 +21,9 @@ bunny-egl: $(OBJS)
     
 bunny.o: bunny.cpp vsh.h fsh.h
 	$(CC) $(CFLAGS) bunny.cpp
+
+mesh.o: mesh.cpp mesh.h
+	$(CC) $(CFLAGS) mesh.cpp
 
 main.o: ../EGL/main.cpp
 	$(CC) $(CFLAGS) ../EGL/main.cpp
@@ -54,3 +57,12 @@ shader.o: ../shader/shader.cpp ../shader/shader.h
     
 clean:
 	rm -rf *.o bunny-egl
+	rm -rf bin
+
+install:
+	mkdir -p bin
+	cp ./bunny-egl		bin/bunny-egl
+	cp ./phong.psh		bin/phong.psh
+	cp ./bg			bin/bg
+	cp ./fixedsys.bff	bin/fixedsys.bff
+	cp ./arialn.bff		bin/arialn.bff
