@@ -436,11 +436,11 @@ bool Initialize(int argc, char *argv[])
     glewInit();
 #endif
 
-    g_pBunny = new CMesh((const VERTEX *)bunny::g_Vertices, sizeof(bunny::g_Vertices),
-        bunny::g_Indices, sizeof(bunny::g_Indices) / sizeof(bunny::g_Indices[0]));
+    g_pBunny = new CMesh(bunny::g_Vertices, sizeof(bunny::g_Vertices),
+        bunny::g_Indices, sizeof(bunny::g_Indices) / sizeof(bunny::g_Indices[0]), true);
 
-    g_pSphere = new CMesh((const VERTEX *)sphere::g_Vertices, sizeof(sphere::g_Vertices),
-        sphere::g_Indices, sizeof(sphere::g_Indices) / sizeof(sphere::g_Indices[0]));
+    g_pSphere = new CMesh(sphere::g_Vertices, sizeof(sphere::g_Vertices),
+        sphere::g_Indices, sizeof(sphere::g_Indices) / sizeof(sphere::g_Indices[0]), false);
 
     g_pFont = new CBffFont("fixedsys.bff");
     g_pTitleFont = new CBffFont("arialn.bff");
