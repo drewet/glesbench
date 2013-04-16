@@ -25,6 +25,9 @@ vec3 phong(vec3 N, vec3 L, vec3 V,
 
 float attenuation(vec3 light, vec3 pos, float r)
 {
+    if (r == 0.) // If not initialized, return 0
+        return 0.;
+        
     float d = length(light - pos);
     return 1.0 - (d * d) / (r * r);
 }
