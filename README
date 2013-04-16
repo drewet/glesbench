@@ -18,7 +18,8 @@ For touchpad build PalmPDK should be installed.
 For TV you should correct paths in "egl-arm" makefile to goldinger usr directory and ARM compiler (I harcoded them for now).
 When building for multiple targets, do not forget to exec make -f <target> clean.
 Also you should execute make install section to put all neccessary filed to one bin directory.
-Generally build is executed using following sequence:
+
+Generally TV version is builded using the following sequence:
 
 make -f egl-arm clean
 make -f egl-arm
@@ -35,7 +36,7 @@ clear-sdl (HPT)
 clear-egl (TV)
 
 When run on TV, be sure that Starfish image has at least libGLESv2.so, libEGL.so and libIMGegl.so.
-Also make sure that file "phong.psh" is exists alongside with binary file.
+Also make sure that you run from "bin" directory, where all other necessary files are located (backgound image, fonts, shader code etc.)
 
 The program supports the following options:
 
