@@ -3,7 +3,7 @@
 
 bool CreateOpenGL(int *pWidth, int *pHeight, int MSAASamples);
 void DestroyOpenGL();
-bool Initialize();
+bool Initialize(int argc, char *argv[]);
 void Cleanup();
 void Render(unsigned Width, unsigned Height);
 
@@ -31,27 +31,28 @@ void RunLoop()
 int main(int argc, char *argv[])
 {
     const char *optstring = "m:";
-    const char *m_arg = NULL;
+    char m_arg[80];
+
+    m_arg[0] = '\0';
 
     int opt = getopt(argc, argv, optstring);
-
     while (opt != -1)
     {
         switch (opt)
         {
         case 'm':
-            m_arg = optarg;
+            strcpy(m_arg, optarg);
             break;
         }
 
         opt = getopt(argc, argv, optstring);
     }
 
-    int MSAASamples = (m_arg ? atoi(m_arg) : 1);
+    int MSAASamples = (m_arg[0] ? atoi(m_arg) : 1);
 
     if (CreateOpenGL(&g_FBWidth, &g_FBHeight, MSAASamples))
     {
-        if (Initialize())
+        if (Initialize(argc, argv))
         {
             //ShowAppWindow();
             RunLoop();

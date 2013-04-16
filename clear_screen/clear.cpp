@@ -11,7 +11,7 @@ CFraps*                 g_pFraps;
 //
 // Initialize
 //
-bool Initialize()
+bool Initialize(int argc, char *argv[])
 {
     puts("Initialize...");
 
