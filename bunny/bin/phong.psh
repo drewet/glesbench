@@ -1,0 +1,57 @@
+#define MAX_POINT_LIGHTS 8
+
+uniform vec4       light_and_radius[MAX_POINT_LIGHTS];
+uniform int        count;
+uniform vec3       Kd[MAX_POINT_LIGHTS];
+uniform vec3       Ks[MAX_POINT_LIGHTS];
+uniform vec3       view;
+
+varying vec3       oPos;
+varying vec3       oNormal;
+
+vec3 phong(vec3 N, vec3 L, vec3 V,
+           vec3 Ka, float Ia,
+           vec3 Kd, float Id,
+           vec3 Ks, float Is,
+           float e)
+{
+    float NdL = clamp(dot(N, L), 0., 1.);
+    vec3 R = reflect(-L, N);
+    float RdV = clamp(dot(R, V), 0., 1.);
+    vec3 I = (Ka * Ia) + (Kd * NdL * Id) + (Ks * pow(RdV, e) * Is);
+
+    return I;
+}
+
+float attenuation(vec3 light, vec3 pos, float r)
+{
+    if (r == 0.) // If not initialized, return 0
+        return 0.;
+        
+    float d = length(light - pos);
+    return 1.0 - (d * d) / (r * r);
+}
+
+void main()
+{
+    vec3 N = normalize(oNormal);
+    vec3 V = normalize(view - oPos);
+    vec3 color = vec3(0., 0., 0.);
+    const float mat_spec_power = 64.0;
+                
+    for (int i = 0; i < MAX_POINT_LIGHTS; ++i)
+    {
+        // Seems that GLSL compiler doesn't allow to use <count> in for () expression. 
+        if (i == count)
+            break;
+        
+        vec4 lr = light_and_radius[i];      
+        vec3 L = normalize(lr.xyz - oPos);
+        vec3 C = phong(N, L, V, Kd[i], 0.15, Kd[i], 0.8, Ks[i], 0.4, mat_spec_power);
+        float att = attenuation(lr.xyz, oPos, lr.w);
+        
+        color += C * att;
+    }
+
+    gl_FragColor = vec4(color, 1.);
+}
