@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <string.h>
 #include <getopt.h>
 
 bool CreateOpenGL(int *pWidth, int *pHeight, int MSAASamples);
