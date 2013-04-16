@@ -3,10 +3,11 @@
 //
 // CMesh
 //
-CMesh::CMesh(const VERTEX *pVertices, GLsizeiptr VertexBufferSize, const GLushort *pIndices, GLuint IndexCount):
+CMesh::CMesh(const void *pVertices, GLsizeiptr VertexBufferSize, const GLushort *pIndices, GLuint IndexCount, bool bHasNormals):
     m_VB(0),
     m_IB(0),
-    m_IndexCount(IndexCount)
+    m_IndexCount(IndexCount),
+    m_bHasNormals(bHasNormals)
 {
     glGenBuffers(1, &m_VB);
     glBindBuffer(GL_ARRAY_BUFFER, m_VB);
@@ -33,18 +34,32 @@ CMesh::~CMesh()
 //
 void CMesh::Draw()
 {
-    GLsizei Stride = sizeof(VERTEX);
+    GLsizei Stride;
 
-    glBindBuffer(GL_ARRAY_BUFFER, m_VB);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0)); // Vertices
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(sizeof(GL_FLOAT) * 3)); // Normals
-    glEnableVertexAttribArray(1);
+    if (m_bHasNormals)
+    {
+        Stride = sizeof(float) * 6;
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_VB);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0)); // Vertices
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(sizeof(GL_FLOAT) * 3)); // Normals
+        glEnableVertexAttribArray(1);
+    }
+    else
+    {
+        Stride = 0; // Tightly packed
+
+        glBindBuffer(GL_ARRAY_BUFFER, m_VB);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0)); // Vertices
+        glEnableVertexAttribArray(0);
+    }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
 
     glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_SHORT, 0);
 
-    glDisableVertexAttribArray(1);
+    if (m_bHasNormals)
+        glDisableVertexAttribArray(1);
     glDisableVertexAttribArray(0);
 }

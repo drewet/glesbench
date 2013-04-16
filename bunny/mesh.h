@@ -3,18 +3,12 @@
 
 #include "../ogl_es.h"
 
-struct VERTEX
-{
-    float Pos[3];
-    float Normal[3];
-};
-
 // Poly mesh
 
 class CMesh
 {
 public:
-    CMesh(const VERTEX *pVertices, GLsizeiptr VBSize, const GLushort *pIndices, GLuint IndexCount);
+    CMesh(const void *pVertices, GLsizeiptr VBSize, const GLushort *pIndices, GLuint IndexCount, bool bHasNormals);
     ~CMesh();
 
     void Draw();
@@ -23,6 +17,7 @@ private:
     GLuint m_VB;
     GLuint m_IB;
     GLuint m_IndexCount;
+    bool m_bHasNormals;
 };
 
 #endif // __MESH_H__
