@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <getopt.h>
 
 #include "../ogl_es.h"
 
@@ -182,115 +183,252 @@ bool LoadShaders()
 }
 
 //
+// SetupOneLightSource
+//
+void SetupOneLightSource()
+{
+    POINT_LIGHT_SOURCE *pls;
+
+    pls = &g_PointLights[0];
+    pls->Center = XMFLOAT3(-0.5f, 0.6f, 1.0f);
+    pls->AttenuationRadius = 1.25f;
+    pls->DiffuseColor = XMFLOAT3(1.0f, 1.0f, 1.0f); // White
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x, pls->DiffuseColor.y, pls->DiffuseColor.z);
+    pls->bMoveable = false;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 0.0f;
+    pls->OrbitRoll = 0.0f;
+    pls->Velocity = 0.0f;
+}
+
+//
+// SetupTwoLightSources
+//
+void SetupTwoLightSources()
+{
+    POINT_LIGHT_SOURCE *pls;
+
+    pls = &g_PointLights[0];
+    pls->Center = XMFLOAT3(-1.0f, 0.0f, 0.0f);
+    pls->AttenuationRadius = 1.5f;
+    pls->DiffuseColor = XMFLOAT3(1.0f, 0.0f, 0.0f); // Red
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x/2.0f, pls->DiffuseColor.y/2.0f, pls->DiffuseColor.z/2.0f);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 1.0f;
+    pls->OrbitRoll = 90.0f;
+    pls->Velocity = 22.0f;
+
+    pls = &g_PointLights[1];
+    pls->Center = XMFLOAT3(1.0f, 0.0f, 0.0f);
+    pls->AttenuationRadius = 1.5f;
+    pls->DiffuseColor = XMFLOAT3(1.0f, 1.0f, 0.0f); // Yellow
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x/2.0f, pls->DiffuseColor.y/2.0f, pls->DiffuseColor.z/2.0f);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = true;
+    pls->OrbitRadius = 1.0f;
+    pls->OrbitRoll = 90.0f;
+    pls->Velocity = 18.0f;
+}
+
+//
+// SetupThreeLightSources
+//
+void SetupThreeLightSources()
+{
+    POINT_LIGHT_SOURCE *pls;
+
+    float z = 0.5f;
+
+    pls = &g_PointLights[0];
+    pls->Center = XMFLOAT3(0.0f, 1.0f, z);
+    pls->AttenuationRadius = 1.75f;
+    pls->DiffuseColor = XMFLOAT3(1.0f, 0.25f, 0.0f); // Red
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x/2.0f, pls->DiffuseColor.y/2.0f, pls->DiffuseColor.z/2.0f);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 0.5f;
+    pls->OrbitRoll = 0.0f;
+    pls->Velocity = 20.0f;
+
+    pls = &g_PointLights[1];
+    pls->Center = XMFLOAT3(-1.25f, -0.5f, z);
+    pls->AttenuationRadius = 1.75f;
+    pls->DiffuseColor = XMFLOAT3(0.0f, 1.0f, 0.25f); // Green
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x/2.0f, pls->DiffuseColor.y/2.0f, pls->DiffuseColor.z/2.0f);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 0.5f;
+    pls->OrbitRoll = -45.0f;
+    pls->Velocity = 20.0f;
+
+    pls = &g_PointLights[2];
+    pls->Center = XMFLOAT3(1.25f, -0.5f, z);
+    pls->AttenuationRadius = 1.75f;
+    pls->DiffuseColor = XMFLOAT3(0.25f, 0.0f, 1.0f); // Blue
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x/2.0f, pls->DiffuseColor.y/2.0f, pls->DiffuseColor.z/2.0f);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 0.5f;
+    pls->OrbitRoll = 45.0f;
+    pls->Velocity = 20.0f;
+}
+
+//
+// SetupFourStaticLightSources
+//
+void SetupFourStaticLightSources()
+{
+    POINT_LIGHT_SOURCE *pls;
+
+    float d = 0.75f;
+    float z = 0.5f;
+
+    pls = &g_PointLights[0];
+    pls->Center = XMFLOAT3(-d, d, z);
+    pls->AttenuationRadius = 1.25f;
+    pls->DiffuseColor = XMFLOAT3(0.75f, 0.75f, 0.75f);
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x, pls->DiffuseColor.y, pls->DiffuseColor.z);
+    pls->bMoveable = false;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 0.0f;
+    pls->OrbitRoll = 0.0f;
+    pls->Velocity = 0.0f;
+
+    pls = &g_PointLights[1];
+    memcpy(pls, &g_PointLights[0], sizeof(POINT_LIGHT_SOURCE));
+    pls->Center = XMFLOAT3(d, d, z);
+
+    pls = &g_PointLights[2];
+    memcpy(pls, &g_PointLights[0], sizeof(POINT_LIGHT_SOURCE));
+    pls->Center = XMFLOAT3(d, -d, z);
+
+    pls = &g_PointLights[3];
+    memcpy(pls, &g_PointLights[0], sizeof(POINT_LIGHT_SOURCE));
+    pls->Center = XMFLOAT3(-d, -d, z);
+}
+
+//
+// SetupFiveLightSources
+//
+void SetupFiveLightSources()
+{
+    SetupFourStaticLightSources();
+
+    POINT_LIGHT_SOURCE *pls;
+
+    pls = &g_PointLights[4];
+    pls->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    pls->AttenuationRadius = 2.5f;
+    pls->DiffuseColor = XMFLOAT3(0.0f, 0.75f, 1.0f);
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x, pls->DiffuseColor.y, pls->DiffuseColor.z);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 1.5f;
+    pls->OrbitRoll = 15.0f;
+    pls->Velocity = 30.0f;
+}
+
+//
+// SetupSixLightSources
+//
+void SetupSixLightSources()
+{
+    SetupFiveLightSources();
+
+    POINT_LIGHT_SOURCE *pls;
+
+    pls = &g_PointLights[5];
+    pls->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    pls->AttenuationRadius = 2.5f;
+    pls->DiffuseColor = XMFLOAT3(1.0f, 0.0f, 0.75f);
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x, pls->DiffuseColor.y, pls->DiffuseColor.z);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = false;
+    pls->OrbitRadius = 2.0f;
+    pls->OrbitRoll = -20.0f;
+    pls->Velocity = 10.0f;
+}
+
+//
+// SetupSevenLightSources
+//
+void SetupSevenLightSources()
+{
+    SetupSixLightSources();
+
+    POINT_LIGHT_SOURCE *pls;
+
+    pls = &g_PointLights[6];
+    pls->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    pls->AttenuationRadius = 2.0f;
+    pls->DiffuseColor = XMFLOAT3(0.5f, 0.75f, 0.0f);
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x, pls->DiffuseColor.y, pls->DiffuseColor.z);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = true;
+    pls->OrbitRadius = 1.75f;
+    pls->OrbitRoll = 60.0f;
+    pls->Velocity = 5.0f;
+}
+
+//
+// SetupEightLightSources
+//
+void SetupEightLightSources()
+{
+    SetupSevenLightSources();
+
+    POINT_LIGHT_SOURCE *pls;
+
+    pls = &g_PointLights[7];
+    pls->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
+    pls->AttenuationRadius = 2.0f;
+    pls->DiffuseColor = XMFLOAT3(0.25f, 0.25f, 0.75f);
+    pls->SpecularColor = XMFLOAT3(pls->DiffuseColor.x, pls->DiffuseColor.y, pls->DiffuseColor.z);
+    pls->bMoveable = true;
+    pls->bClockwiseOrbit = true;
+    pls->OrbitRadius = 1.25f;
+    pls->OrbitRoll = 90.0f;
+    pls->Velocity = 7.0f;
+}
+
+//
 // SetupLights
 //
-void SetupLights()
+void SetupLights(unsigned LightCount)
 {
     memset(g_PointLights, 0, sizeof(g_PointLights));
 
-    POINT_LIGHT_SOURCE *l;
+    switch (LightCount)
+    {
+    case 1: SetupOneLightSource();
+        break;
+    case 2: SetupTwoLightSources();
+        break;
+    case 3: SetupThreeLightSources();
+        break;
+    case 4: SetupFourStaticLightSources();
+        break;
+    case 5: SetupFiveLightSources();
+        break;
+    case 6: SetupSixLightSources();
+        break;
+    case 7: SetupSevenLightSources();
+        break;
+    case 8:
+    default:
+        SetupEightLightSources();
+        break;
+    }
 
-    //
-    // Static
-    //
-
-    l = &g_PointLights[0];
-    l->Center = XMFLOAT3(-1.0f, 1.0f, 0.0f);
-    l->AttenuationRadius = 2.0f;
-    l->DiffuseColor = XMFLOAT3(0.0f, 0.5f, 1.0f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = false;
-    l->bClockwiseOrbit = false;
-    l->OrbitRadius = 0.0f;
-    l->OrbitRoll = 0.0f;
-    l->Velocity = 0.0f;
-
-    l = &g_PointLights[1];
-    l->Center = XMFLOAT3(1.0f, 1.5f, 1.0f);
-    l->AttenuationRadius = 5.0f;
-    l->DiffuseColor = XMFLOAT3(0.75f, 0.75f, 0.75f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = false;
-    l->bClockwiseOrbit = false;
-    l->OrbitRadius = 0.0f;
-    l->OrbitRoll = 0.0f;
-    l->Velocity = 0.0f;
-
-    l = &g_PointLights[2];
-    l->Center = XMFLOAT3(0.5f, -1.0f, 1.0f);
-    l->AttenuationRadius = 2.0f;
-    l->DiffuseColor = XMFLOAT3(0.0f, 0.25f, 1.0f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = false;
-    l->bClockwiseOrbit = false;
-    l->OrbitRadius = 0.0f;
-    l->OrbitRoll = 0.0f;
-    l->Velocity = 0.0f;
-
-    //
-    // Moveable
-    //
-
-    l = &g_PointLights[3];
-    l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    l->AttenuationRadius = 6.0f;
-    l->DiffuseColor = XMFLOAT3(126.0f/255.0f, 237.0f/255.0f, 199.0f/255.0f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = true;
-    l->bClockwiseOrbit = false;
-    l->OrbitRadius = 2.5f;
-    l->OrbitRoll = 0.0f;
-    l->Velocity = 6.0f;
-
-    l = &g_PointLights[4];
-    l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    l->AttenuationRadius = 2.0f;
-    l->DiffuseColor = XMFLOAT3(1.0f, 0.0f, 0.0f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = true;
-    l->bClockwiseOrbit = false;
-    l->OrbitRadius = 1.25f;
-    l->OrbitRoll = 65.0f;
-    l->Velocity = 3.0f;
-
-    l = &g_PointLights[5];
-    l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    l->AttenuationRadius = 2.0f;
-    l->DiffuseColor = XMFLOAT3(0.0f, 0.8f, 0.7f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = true;
-    l->bClockwiseOrbit = true;
-    l->OrbitRadius = 1.5f;
-    l->OrbitRoll = 120.0f;
-    l->Velocity = 20.0f;
-
-    l = &g_PointLights[6];
-    l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    l->AttenuationRadius = 3.0f;
-    l->DiffuseColor = XMFLOAT3(0.25f, 1.0f, 0.25f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = true;
-    l->bClockwiseOrbit = false;
-    l->OrbitRadius = 2.0f;
-    l->OrbitRoll = 10.0f;
-    l->Velocity = 8.0f;
-
-    l = &g_PointLights[7];
-    l->Center = XMFLOAT3(0.0f, 0.0f, 0.0f);
-    l->AttenuationRadius = 3.0f;
-    l->DiffuseColor = XMFLOAT3(0.0f, 0.0f, 1.0f);
-    l->SpecularColor = XMFLOAT3(l->DiffuseColor.x/2.0f, l->DiffuseColor.y/2.0f, l->DiffuseColor.z/2.0f);
-    l->bMoveable = true;
-    l->bClockwiseOrbit = true;
-    l->OrbitRadius = 2.0f;
-    l->OrbitRoll = -20.0f;
-    l->Velocity = 6.0f;
+    printf("Number of point lights: %d\n", LightCount);
+    g_LightCount = LightCount;
 }
 
 //
 // Initialize
 //
-bool Initialize()
+bool Initialize(int argc, char *argv[])
 {
     puts("Initialize...");
 
@@ -314,7 +452,33 @@ bool Initialize()
     bool bShaders = LoadShaders();
     assert(bShaders);
 
-    SetupLights();
+    // Get light count
+    const char *optstring = "p:";
+    char p_arg[80];
+
+    p_arg[0] = '\0';
+    optind = 1; // Reset getopt
+
+    int opt = getopt(argc, argv, optstring);
+    while (opt != -1)
+    {
+        switch (opt)
+        {
+        case 'p':
+            strcpy(p_arg, optarg);
+            break;
+        }
+
+        opt = getopt(argc, argv, optstring);
+    }
+
+    unsigned LightCount = (unsigned)(p_arg[0] ? atoi(p_arg) : 8);
+
+    // Allow no more than 8 point lights
+    if (LightCount > 8)
+        LightCount = 8;
+
+    SetupLights(LightCount);
 
     // Setup render states once
     glEnable(GL_DEPTH_TEST);
@@ -358,9 +522,10 @@ void CalcLightPosition(POINT_LIGHT_SOURCE *pLight)
         float Rad = XMConvertToRadians(pLight->OrbitAngle);
 
         // Position on orbit
-        pLight->Position = pLight->Center;
-        pLight->Position.x += sinf(Rad) * pLight->OrbitRadius;
-        pLight->Position.z += cosf(Rad) * pLight->OrbitRadius;
+        //pLight->Position = pLight->Center;
+        pLight->Position.x = sinf(Rad) * pLight->OrbitRadius;
+        pLight->Position.y = 0.0f;
+        pLight->Position.z = cosf(Rad) * pLight->OrbitRadius;
 
         XMMATRIX Roll = XMMatrixRotationZ(XMConvertToRadians(pLight->OrbitRoll));
         XMVECTOR V = XMLoadFloat3(&pLight->Position);
@@ -368,6 +533,10 @@ void CalcLightPosition(POINT_LIGHT_SOURCE *pLight)
         // Orbit roll angle
         V = XMVector3Transform(V, Roll);
         XMStoreFloat3(&pLight->Position, V);
+
+        pLight->Position.x += pLight->Center.x;
+        pLight->Position.y += pLight->Center.y;
+        pLight->Position.z += pLight->Center.z;
     }
     else
     {
@@ -423,7 +592,7 @@ void UpdateSphereConstantsVS(XMFLOAT3 Position)
 {
     // Sphere radius is 1 by default - too large for us, 
     // scale as appropriate 
-    const float SCALE = 1.0f / 50.0f;
+    const float SCALE = 1.0f / 80.0f;
     const XMMATRIX Scale = XMMatrixScaling(SCALE, SCALE, SCALE);
 
     XMMATRIX Spin90 = XMMatrixRotationX(XMConvertToRadians(90.0f)); // Need to rotate here because of initial mesh rotation
