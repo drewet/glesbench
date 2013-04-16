@@ -16,5 +16,7 @@ typedef char GLchar; // Some GLES headers do not typedef this
 #   include <GL/glx.h>
 #endif
 
+#include <stdlib.h> // for NULL
+
 #define ATTRIB_OFFSET(n) \
     (GLvoid *)((char *)NULL + (n))
