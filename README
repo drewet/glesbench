@@ -17,6 +17,12 @@ make -f egl-arm - for LG TV
 For touchpad build PalmPDK should be installed.
 For TV you should correct paths in "egl-arm" makefile to goldinger usr directory and ARM compiler (I harcoded them for now).
 When building for multiple targets, do not forget to exec make -f <target> clean.
+Also you should execute make install section to put all neccessary filed to one bin directory.
+Generally build is executed using following sequence:
+
+make -f egl-arm clean
+make -f egl-arm
+make -f egl-arm install
 
 Or you can use binaries from repo:
 
@@ -31,11 +37,16 @@ clear-egl (TV)
 When run on TV, be sure that Starfish image has at least libGLESv2.so, libEGL.so and libIMGegl.so.
 Also make sure that file "phong.psh" is exists alongside with binary file.
 
-EGL version supports multisampling option (antialiazing).
-To enable it, run program with parameter -m <N>, where N is number of samples per pixel, e.g.:
+The program supports the following options:
 
-./bunny -m 4
+1) Different number of point lights. 
+To change number of lights, run with parameter -p <N>, where N is number of lights (1..8, 8 is default and maximum).
+
+./bunny-egl -p 3
+
+2) Multisampling option (antialiazing).
+To enable it, run with parameter -m <N>, where N is number of samples per pixel, e.g.:
+
+./bunny-egl -m 4
 
 Seems that TV supports 2, 4 and 8 MSAA modes.
-
-
