@@ -326,7 +326,7 @@ void SetupFiveLightSources()
     pls->bClockwiseOrbit = false;
     pls->OrbitRadius = 1.5f;
     pls->OrbitRoll = 15.0f;
-    pls->Velocity = 30.0f;
+    pls->Velocity = 20.0f;
 }
 
 //
