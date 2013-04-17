@@ -36,27 +36,26 @@ void CMesh::Draw()
 {
     GLsizei Stride;
 
+    glBindBuffer(GL_ARRAY_BUFFER, m_VB);
+
     if (m_bHasNormals)
     {
         Stride = sizeof(float) * 6;
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_VB);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0)); // Vertices
         glEnableVertexAttribArray(0);
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(sizeof(GL_FLOAT) * 3)); // Normals
         glEnableVertexAttribArray(1);
     }
-    else
+    else // Positions only
     {
         Stride = 0; // Tightly packed
 
-        glBindBuffer(GL_ARRAY_BUFFER, m_VB);
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, Stride, ATTRIB_OFFSET(0)); // Vertices
         glEnableVertexAttribArray(0);
     }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IB);
-
     glDrawElements(GL_TRIANGLES, m_IndexCount, GL_UNSIGNED_SHORT, 0);
 
     if (m_bHasNormals)
