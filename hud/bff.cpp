@@ -102,10 +102,13 @@ void CBffFont::SetScale(float Scale)
     else
         Filter = GL_LINEAR;
 
-    glBindTexture(GL_TEXTURE_2D, m_Texture);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Filter);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Filter);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    if (m_Texture)
+    {
+        glBindTexture(GL_TEXTURE_2D, m_Texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, Filter);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, Filter);
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 }
 
 //
@@ -144,7 +147,6 @@ void CBffFont::DrawString(int x, int y, const char *pFormat, ...)
     assert(m_Height);
 
     // Draw only if texture was loaded successfully.
-    assert(m_Texture);
     if (0 == m_Texture)
         return;
 

@@ -76,7 +76,6 @@ void CBackground::Draw()
     assert(m_Height);
 
     // Draw only if texture was loaded successfully.
-    assert(m_Texture);
     if (0 == m_Texture)
         return;
 
